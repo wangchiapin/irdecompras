@@ -293,6 +293,13 @@
 
   /* ---------- CHANGE VERIFICATION ---------- */
   #screen-change{align-items:center;}
+  .change-info{
+    width:100%;background:var(--paper2);border-radius:10px;padding:12px 16px;margin-bottom:12px;
+    box-shadow:var(--shadow);font-family:'Noto Serif TC',serif;
+  }
+  .ci-row{display:flex;justify-content:space-between;align-items:flex-end;padding:4px 0;font-size:15px;color:var(--ink-soft);}
+  .ci-row.due{border-top:2px dashed var(--gold);margin-top:6px;padding-top:8px;font-size:18px;font-weight:900;color:var(--brick-dark);}
+  .ci-row rt{color:var(--ink-soft);}
   .change-choices{display:flex;flex-direction:column;gap:10px;width:100%;margin:18px 0 8px;}
   .choice-btn{background:var(--paper2);color:var(--ink);border:2px solid var(--gold);box-shadow:none;padding:14px 10px;}
   .choice-btn:disabled{opacity:.45;cursor:default;}
@@ -422,6 +429,7 @@
   <div class="screen" id="screen-change">
     <div class="lb-title" id="changeTitle"></div>
     <div class="lb-sub" id="changeSub"></div>
+    <div class="change-info" id="changeInfo"></div>
     <div class="counter-tray">
       <div class="piece-row" id="changeTrayPieces"></div>
     </div>
@@ -612,6 +620,11 @@ let startTime = 0;
 let shoppingEndTime = 0;
 let walletPieces = []; // [{id, denom, spent}] — generated fresh each checkout
 let TOTAL_PRICE = 0;
+let maxScore = 0;        // 這一輪的滿分（依清單項數而定），用來換算成百分制
+let paymentDone = false; // 已經按過「付钱」，避免連按重複加分
+let resultShown = false; // 結果頁只處理一次，避免重複加分/重複送出排行榜
+let lastFinalScore = 0;  // 百分制最終分數（排行榜用）
+let micErrorShown = false; // 麥克風錯誤提示不要被「按住说话」立刻蓋掉
 
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -686,7 +699,7 @@ function renderLeaderboard(rows){
   }
   const cls = i => i===0?'top1':i===1?'top2':i===2?'top3':'';
   list.innerHTML = rows.map((r,i)=>{
-    const mine = r.name===playerName && r.score===score ? 'me' : '';
+    const mine = r.name===playerName && r.score===lastFinalScore ? 'me' : '';
     return `<div class="lb-row ${cls(i)} ${mine}">
       <div class="lb-rank">${i+1}</div>
       <div class="lb-name">${escapeHtml(r.name)}</div>
@@ -787,6 +800,8 @@ function buildShoppingList(){
     shoppingList.push({item, qty, done:false, attempts:0});
   }
   TOTAL_PRICE = shoppingList.reduce((sum,e)=> sum + e.item.price*e.qty, 0);
+  // 滿分 = 每項一次答對 20 + 買齊獎勵 10 + 速度獎勵 15 + 剛好付款 25
+  maxScore = shoppingList.length*20 + 10 + 15 + 25;
   renderShoppingList();
   renderShoppingList2();
 }
@@ -815,6 +830,13 @@ document.getElementById('startShoppingBtn').addEventListener('click', ()=>{
   showScreen('screen-shopping');
   startTime = Date.now();
   shoppingEndTime = 0;
+  paymentDone = false;
+  resultShown = false;
+  // 新的一輪：清掉上一輪留下的提示與輸入
+  document.getElementById('feedbackMsg').innerHTML = '';
+  document.getElementById('feedbackMsg').classList.remove('good');
+  document.getElementById('textFallback').value = '';
+  document.getElementById('micStatus').textContent = SR ? '按住麦克风说话' : '此浏览器不支持语音输入，请用下方打字输入';
   document.getElementById('checkoutBtnWrap').style.display='flex';
   startShoppingTimer();
 });
@@ -844,27 +866,40 @@ function renderShoppingList2(){
 function checkAllDone(){
   return shoppingList.every(e=>e.done);
 }
+/* 物品名稱是否出現在話裡。
+   避免較短的名稱被較長的名稱誤判，例如「米」被「玉米」、「面」被「泡面」。 */
+function nameInText(clean, item){
+  const n1 = item.h.join('');
+  const n2 = (item.t || item.h).join('');
+  if(!clean.includes(n1) && !clean.includes(n2)) return false;
+  for(const o of ITEMS){
+    if(o===item) continue;
+    const l1 = o.h.join('');
+    const l2 = (o.t || o.h).join('');
+    if(l1!==n1 && l1.includes(n1) && clean.includes(l1)) return false;
+    if(l2!==n2 && l2.includes(n2) && clean.includes(l2)) return false;
+  }
+  return true;
+}
 function matchAnswer(text, entry){
   // strip whitespace/punctuation; also strip spaces the recognizer sometimes inserts between every syllable
   const clean = text.replace(/[\s,，。!！、\.\?？]/g,'');
   const item = entry.item;
-  const nameSimp = item.h.join('');
-  const nameTrad = (item.t || item.h).join('');
-  if(!clean.includes(nameSimp) && !clean.includes(nameTrad)) return {ok:false};
+  if(!nameInText(clean, item)) return {ok:false, nameMatched:false};
 
   const measureTrad = MEASURE_TRAD[item.m] || item.m;
   const aliases = MEASURE_ASR_ALIASES[item.m] || [];
   const properMeasure = clean.includes(item.m) || clean.includes(measureTrad) || aliases.some(a=>clean.includes(a));
   const genericMeasure = clean.includes('个') || clean.includes('個');
-  if(!properMeasure && !genericMeasure) return {ok:false};
+  if(!properMeasure && !genericMeasure) return {ok:false, nameMatched:true, reason:'measure'};
 
   const digitStr = String(entry.qty);
   const hanziOptions = [QTY_HANZI[entry.qty]];
   if(entry.qty===2) hanziOptions.push('二','兩');
   const hasNum = clean.includes(digitStr) || hanziOptions.some(h=>clean.includes(h));
-  if(!hasNum) return {ok:false};
+  if(!hasNum) return {ok:false, nameMatched:true, reason:'qty'};
 
-  return {ok:true, properMeasure};
+  return {ok:true, nameMatched:true, properMeasure};
 }
 function processAnswerAlternatives(candidates){
   const list = (candidates||[]).map(t=>(t||'').trim()).filter(Boolean);
@@ -885,11 +920,12 @@ function processAnswer(rawText){
   const feedback = document.getElementById('feedbackMsg');
   const text = (rawText||'').trim();
   if(!text){ return; }
-  let matched = null, matchInfo = null;
+  let matched = null, matchInfo = null, partial = null;
   for(const entry of shoppingList){
     if(entry.done) continue;
     const r = matchAnswer(text, entry);
     if(r.ok){ matched = entry; matchInfo = r; break; }
+    if(r.nameMatched && !partial) partial = {entry, reason:r.reason};
   }
   if(matched){
     matched.done = true;
@@ -911,20 +947,35 @@ function processAnswer(rawText){
       finalizeShopping();
       document.getElementById('micStatus').textContent = '';
     }
+  } else if(partial){
+    // 物品說對了，但數量或量詞不對：只記在這一項上，不連累其他物品
+    partial.entry.attempts += 1;
+    feedback.classList.remove('good');
+    const what = partial.reason==='qty' ? '数量' : '量词';
+    feedback.innerHTML = `你说的是：「${text}」<br>「${partial.entry.item.h.join('')}」听到了，但${what}好像不对，再试一次～`;
   } else {
-    shoppingList.forEach(e=>{ if(!e.done) e.attempts += 1; });
+    // 完全沒對上任何物品（可能是麥克風聽錯）：不扣分、不記嘗試
     feedback.classList.remove('good');
     feedback.innerHTML = `你说的是：「${text}」<br>清单上没有找到，请说出「数量＋量词＋物品」，再试一次～`;
   }
 }
 document.getElementById('goCheckoutBtn').addEventListener('click', ()=>{
+  const doneCount = shoppingList.filter(e=>e.done).length;
   if(!checkAllDone()){
-    const remaining = shoppingList.filter(e=>!e.done).length;
-    const proceed = confirm(`还有 ${remaining} 项还没买到，确定要先去结账吗？\n没买到的东西不会算钱，也拿不到「买齐奖励」分数喔。`);
-    if(!proceed) return;
+    const remaining = shoppingList.length - doneCount;
+    const text = doneCount===0
+      ? '一样东西都还没买到，确定要放弃吗？\n这一轮会是 0 分喔。'
+      : `还有 ${remaining} 项还没买到，确定要先去结账吗？\n没买到的东西不会算钱，也拿不到「买齐奖励」分数喔。`;
+    if(!confirm(text)) return;
   }
   finalizeShopping();
   if(recognition && listening){ try{ recognition.stop(); }catch(e){} }
+  if(doneCount===0){
+    // 什麼都沒買，沒有東西可結帳，直接看結果
+    TOTAL_PRICE = 0;
+    showResult();
+    return;
+  }
   buildCheckoutScreen();
   showScreen('screen-checkout');
 });
@@ -947,11 +998,17 @@ if(SR){
     processAnswerAlternatives(alts);
   };
   recognition.onerror = (e)=>{
+    micErrorShown = true;
     if(e.error === 'no-speech'){ micStatus.textContent = '没听到声音，请再按一次麦克风试试'; }
     else if(e.error === 'not-allowed' || e.error === 'service-not-allowed'){ micStatus.textContent = '无法取得麦克风权限，请改用下方打字输入'; }
     else { micStatus.textContent = '麦克风无法使用，请改用下方打字输入'; }
   };
-  recognition.onend = ()=>{ listening=false; micBtn.classList.remove('listening'); if(!checkAllDone()) micStatus.textContent='按住麦克风说话'; };
+  recognition.onend = ()=>{
+    listening=false; micBtn.classList.remove('listening');
+    // 剛剛有出錯就保留錯誤提示，不要馬上被「按住麦克风说话」蓋掉
+    if(micErrorShown){ micErrorShown=false; return; }
+    if(!checkAllDone()) micStatus.textContent='按住麦克风说话';
+  };
 } else {
   micStatus.textContent = '此浏览器不支持语音输入，请用下方打字输入';
   micBtn.style.opacity = '0.4';
@@ -959,6 +1016,7 @@ if(SR){
 }
 function startListening(){
   if(!recognition || checkAllDone() || listening) return;
+  micErrorShown = false;
   listening = true;
   micBtn.classList.add('listening');
   micStatus.textContent = '聆听中…放开结束';
@@ -1020,21 +1078,26 @@ function denomSVG(d){ return d>=100 ? billSVG(d) : coinSVG(d); }
 
 /* ---- wallet generation: random total strictly greater than TOTAL_PRICE, broken into random pieces ---- */
 let pieceIdCounter = 0;
-function buildWalletState(total){
-  const extraPool = [10,20,30,40,50,70,80,100,120,150,200];
-  const extra = extraPool[Math.floor(Math.random()*extraPool.length)] + Math.floor(Math.random()*15);
-  const walletTotal = total + extra;
+/* 把一個金額拆成鈔票/硬幣，偶爾把大面額拆成小面額，讓每次的組合不太一樣 */
+function decomposeRandom(amount){
   const denomsDesc = [500,100,50,10,5,1];
-  let remaining = walletTotal;
-  const pieces = [];
-  let guard = 0;
-  while(remaining > 0 && guard < 60){
-    guard++;
-    const candidates = denomsDesc.filter(d=>d<=remaining);
-    const d = Math.random() < 0.55 ? candidates[0] : candidates[Math.floor(Math.random()*candidates.length)];
-    pieces.push(d);
-    remaining -= d;
+  let rem = amount;
+  const out = [];
+  for(const d of denomsDesc){ while(rem >= d){ out.push(d); rem -= d; } }
+  const res = [];
+  for(const d of out){
+    if(d===100 && Math.random()<0.15) res.push(50,50);
+    else if(d===10 && Math.random()<0.15) res.push(5,5);
+    else res.push(d);
   }
+  return res;
+}
+/* 皮包 = 「剛好能付清的那一組」+「多出來的一組」。
+   這樣一定湊得出剛好的金額（要找零就多拿一些），皮包總額也一定大於應付金額。 */
+function buildWalletState(total){
+  const extraPool = [50,100,100,150,200];  // 多出來的錢用少數幾張大面額，皮包才不會擠成一堆
+  const extra = extraPool[Math.floor(Math.random()*extraPool.length)];
+  const pieces = decomposeRandom(total).concat(decomposeRandom(extra));
   for(let i=pieces.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pieces[i],pieces[j]]=[pieces[j],pieces[i]]; }
   walletPieces = pieces.map(d=>({id:'p'+(pieceIdCounter++), denom:d, spent:false}));
 }
@@ -1058,6 +1121,7 @@ function flyPiece(fromEl, toContainer, onDone){
   setTimeout(()=>{ clone.remove(); onDone && onDone(); }, 430);
 }
 function togglePiece(id, toSpent){
+  if(paymentDone) return; // 已經付款就不能再動錢
   const p = walletPieces.find(x=>x.id===id);
   if(!p || p.spent===toSpent) return;
   const originEl = document.querySelector(`.cash-piece[data-id="${id}"]`);
@@ -1100,17 +1164,21 @@ function buildCheckoutScreen(){
   document.getElementById('receiptRows').innerHTML = rowsHtml;
   document.getElementById('totalAmount').textContent = 'NT$ ' + TOTAL_PRICE;
   buildWalletState(TOTAL_PRICE);
+  paymentDone = false;
+  document.getElementById('payBtn').disabled = false;
   renderWallet();
   document.getElementById('checkoutMsg').textContent = '';
   document.getElementById('checkoutMsg').className = '';
 }
 document.getElementById('resetCashBtn').addEventListener('click', ()=>{
+  if(paymentDone) return;
   walletPieces.forEach(p=>p.spent=false);
   renderWallet();
   document.getElementById('checkoutMsg').textContent='';
   document.getElementById('checkoutMsg').className='';
 });
 document.getElementById('payBtn').addEventListener('click', ()=>{
+  if(paymentDone) return; // 連按「付钱」只算一次
   const msg = document.getElementById('checkoutMsg');
   const paid = currentPaid();
   if(paid < TOTAL_PRICE){
@@ -1118,6 +1186,8 @@ document.getElementById('payBtn').addEventListener('click', ()=>{
     msg.textContent = `金额不足，请再从皮包拿出 NT$ ${TOTAL_PRICE - paid} 元`;
     return;
   }
+  paymentDone = true;
+  document.getElementById('payBtn').disabled = true;
   const change = paid - TOTAL_PRICE;
   if(change === 0){
     score += 25;
@@ -1161,6 +1231,11 @@ function buildChangeScenario(correctChange){
 }
 function showChangeScreen(correctChange){
   currentChangeScenario = buildChangeScenario(correctChange);
+  // 把算式寫在畫面上，玩家不用靠記憶判斷
+  document.getElementById('changeInfo').innerHTML = `
+    <div class="ci-row"><span>${R([['总','zǒng'],['金','jīn'],['额','é']])}</span><b>NT$ ${TOTAL_PRICE}</b></div>
+    <div class="ci-row"><span>${R([['你','nǐ'],['付','fù'],['了','le']])}</span><b>NT$ ${currentPaid()}</b></div>
+    <div class="ci-row due"><span>${R([['应','yīng'],['找','zhǎo']])}</span><b>NT$ ${correctChange}</b></div>`;
   const pieces = breakdownDenoms(currentChangeScenario.givenChange);
   const trayEl = document.getElementById('changeTrayPieces');
   trayEl.innerHTML = pieces.length
@@ -1199,16 +1274,21 @@ document.getElementById('changeContinueBtn').addEventListener('click', ()=>{ sho
 
 /* ================= RESULT ================= */
 function showResult(){
+  if(resultShown) return; // 只處理一次，避免重複加分／重複送出排行榜
+  resultShown = true;
   const elapsedSec = Math.max(1, Math.round((shoppingEndTime-startTime)/1000));
   const doneCount = shoppingList.filter(e=>e.done).length;
   const firstTry = shoppingList.filter(e=>e.done && e.attempts===1).length;
-  let stars = '☆☆☆';
-  if(score>=160) stars='★★★';
-  else if(score>=100) stars='★★';
+  // 換算成百分制：3 項和 5 項的清單滿分不同，用百分比才公平，排行榜也比較得動
+  const finalScore = maxScore>0 ? Math.max(0, Math.min(100, Math.round(score/maxScore*100))) : 0;
+  lastFinalScore = finalScore;
+  let stars;
+  if(finalScore>=85) stars='★★★';
+  else if(finalScore>=55) stars='★★☆';
   else stars='★☆☆';
   document.getElementById('starsDisplay').textContent = stars;
   document.getElementById('resultName').textContent = playerName + '，辛苦了！';
-  document.getElementById('resultScore').innerHTML = score + R([['分','fēn']]);
+  document.getElementById('resultScore').innerHTML = finalScore + R([['分','fēn']]);
   document.getElementById('resultCard').innerHTML = `
     <div class="result-line"><span>${R([['购','gòu'],['买','mǎi'],['品','pǐn'],['项','xiàng']])}</span><b>${doneCount} / ${shoppingList.length} 项</b></div>
     <div class="result-line"><span>${R([['一','yí'],['次','cì'],['答','dá'],['对','duì']])}</span><b>${firstTry} / ${shoppingList.length}</b></div>
@@ -1217,7 +1297,7 @@ function showResult(){
   `;
   showScreen('screen-result');
   speak('购物完成，' + playerName + '，你做得很好！');
-  submitScoreToLeaderboard(playerName, score);
+  if(finalScore>0) submitScoreToLeaderboard(playerName, finalScore);
 }
 document.getElementById('playAgainBtn').addEventListener('click', ()=>{
   score = 0;
