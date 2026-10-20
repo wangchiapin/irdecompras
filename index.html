@@ -69,7 +69,7 @@
   ruby{ ruby-position: over; }
   rt{
     font-family:var(--sans);
-    font-size:0.34em;
+    font-size:0.5em;
     color:var(--ink-soft);
     font-weight:500;
     letter-spacing:0;
@@ -113,7 +113,8 @@
   /* 選「只有中文」時不顯示小字翻譯 */
   html[data-lang="zh"] .tr, html[data-lang="zh"] .btn .sub, html[data-lang="zh"] #startSubtitle{display:none;}
   /* 拼音＋注音兩者並列 */
-  rt .zy{display:block;}
+  .pz{display:inline-flex;flex-direction:column;align-items:center;}
+  .zyu{font-family:var(--sans);font-size:0.5em;font-weight:500;line-height:1.15;color:var(--ink-soft);letter-spacing:0;white-space:nowrap;margin-top:1px;}
   .chip{
     margin-left:auto;font-size:12.5px;background:var(--paper2);padding:5px 11px;border-radius:999px;
     max-width:36%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);
@@ -645,6 +646,7 @@
         <div class="lb-sub" id="changeSub"></div>
         <div class="change-info" id="changeInfo"></div>
         <div class="counter-tray">
+          <div class="counter-label" id="changeTrayLabel"></div>
           <div class="piece-row" id="changeTrayPieces"></div>
         </div>
       </div>
@@ -774,8 +776,13 @@ const ZY=(function(){
 /* 一個音節的拼音／注音／兩者（放在 <rt> 裡） */
 function phInner(p){
   if(!p || !showPh()) return '';
-  const py = esc(p), zy = esc(ZY.one(p));
-  return Settings.phon === 'pinyin' ? py : Settings.phon === 'zhuyin' ? zy : py + '<span class="zy">' + zy + '</span>';
+  return esc(Settings.phon === 'zhuyin' ? ZY.one(p) : p);   // 「兩者」時 <rt> 只放拼音，注音放在字的下面
+}
+/* 一個字帶拼音／注音。選「兩者」：拼音在字上方、注音在字下方 */
+function rubyOne(chEsc, p){
+  const base = `<ruby>${chEsc}<rt>${phInner(p)}</rt></ruby>`;
+  if(Settings.phon === 'both' && p) return `<span class="pz">${base}<span class="zyu">${esc(ZY.one(p))}</span></span>`;
+  return base;
 }
 
 let _t2s = null;                                              // 繁→簡轉換器（選簡體時才載入）
@@ -818,7 +825,7 @@ function tokensFor(str){
       const py = (showPh() && PINYIN_OK) ? toPinyinArr(seg) : null;
       segChars.forEach((c, k) => {
         const ch = esc(chars[pos + k]);
-        out.push(py ? `<ruby>${ch}<rt>${phInner(py[k] || '')}</rt></ruby>` : ch);
+        out.push(py ? rubyOne(ch, py[k] || '') : ch);
       });
     } else segChars.forEach((c, k) => out.push(esc(chars[pos + k])));
     pos += segChars.length;
@@ -864,6 +871,7 @@ const UI = {
   pay:        ['付錢', 'Pagar', 'Pay'],
   paidLabel:  ['已付金額', 'Pagado', 'Paid'],
   changeTitle:['老闆找錢了', 'El dueño te da el cambio', 'The shopkeeper gives you change'],
+  changeTray: ['老闆找的錢', 'El cambio del dueño', "The shopkeeper's change"],
   changeSub:  ['請仔細看看', 'Mira con atención', 'Look carefully'],
   changeQ:    ['老闆找的對不對？', '¿El cambio es correcto?', 'Is the change correct?'],
   exact:      ['剛剛好', 'Exacto', 'Exact'],
@@ -1181,7 +1189,7 @@ const nameChars = it => SIMP() ? it.h : it.t;
 /* 「兩瓶牛奶」：看拼音開著就帶拼音 */
 function fullLabel(item, qty){
   if(!showPh()) return esc(plainLabel(item, qty));
-  const r = (c, p) => `<ruby>${esc(c)}<rt>${phInner(p)}</rt></ruby>`;
+  const r = (c, p) => rubyOne(esc(c), p);
   return r(qtyChar(qty), qtyPinyin(qty, item.mt)) + r(measChar(item), item.mp)
        + nameChars(item).map((c, i) => r(c, item.p[i])).join('');
 }
@@ -1260,6 +1268,7 @@ function renderStatic(){
   set('payBtn', bt('pay'));
   set('changeTitle', bi('changeTitle'));
   set('changeSub', bi('changeSub'));
+  set('changeTrayLabel', bi('changeTray'));
   set('changeQuestion', bi('changeQ'));
   set('changeBtnCorrect', bt('exact'));
   set('changeBtnOver', bt('tooMuch'));
@@ -1313,7 +1322,7 @@ function measureNotesHTML(){
   return seen.map(m => {
     const info = MEASURE_INFO[m]; if(!info) return '';
     const ch = SIMP() ? m : (MEASURE_TRAD[m] || m);
-    const head = showPh() ? `<ruby>${esc(ch)}<rt>${phInner(info.py)}</rt></ruby>` : esc(ch);
+    const head = showPh() ? rubyOne(esc(ch), info.py) : esc(ch);
     return `<div class="mw-row"><span class="mw-head">${head}</span>`
          + `<span class="mw-body"><span class="zh">${ruby(info.zh)}</span><span class="tr">${esc(X(info.es, info.en))}</span></span></div>`;
   }).join('');
@@ -1488,7 +1497,11 @@ function stopSpeak(){ try{ speechSynthesis.cancel(); }catch(e){} }
 ══════════════════════════════════════ */
 const nameInput = $('nameInput');
 const startBtn = $('startBtn');
-nameInput.addEventListener('input', ()=>{ startBtn.disabled = nameInput.value.trim().length===0; });
+const NAME_KEY = 'irdecompras.playerName';
+try{ const saved = localStorage.getItem(NAME_KEY); if(saved) nameInput.value = saved.slice(0, 12); }catch(e){}
+startBtn.disabled = nameInput.value.trim().length === 0;
+const saveName = () => { try{ localStorage.setItem(NAME_KEY, nameInput.value.trim()); }catch(e){} };
+nameInput.addEventListener('input', ()=>{ startBtn.disabled = nameInput.value.trim().length===0; saveName(); });
 nameInput.addEventListener('keydown', e=>{ if(e.key==='Enter' && !startBtn.disabled) startBtn.click(); });
 startBtn.addEventListener('click', ()=>{
   playerName = nameInput.value.trim();
