@@ -62,8 +62,8 @@
   }
   .screen.active{display:flex;}
   body.has-bar .screen{
-    min-height:calc(100vh - 48px);
-    min-height:calc(100dvh - 48px);
+    min-height:calc(100vh - 58px);
+    min-height:calc(100dvh - 58px);
     padding-top:20px;
   }
   ruby{ ruby-position: over; }
@@ -87,7 +87,7 @@
   }
   .btn-pinyin[aria-pressed="true"]{background:var(--brick);color:#FBF3DD;border-color:var(--brick);}
   .btn-pinyin.restart{color:var(--ink);border-color:var(--ink);white-space:nowrap;}
-  .top-bar{flex-wrap:wrap;}
+  .top-bar{flex-wrap:wrap;position:relative;}
   .home-wide{width:100%;margin-top:14px;}
 
   /* ---------- ⚙️ 設定（和小狗找寶藏、跑吧、色數、比比看一樣：字體／語言／拼音注音／語速） ---------- */
@@ -300,7 +300,6 @@
   .example rt{color:var(--ink-soft);}
   .example .tr{text-align:center;}
 
-  .mic-zone{display:flex;flex-direction:column;align-items:center;gap:10px;margin:8px 0 8px;width:100%;}
   #micBtn{
     width:88px;height:88px;border-radius:50%;
     background:var(--brick);border:none;color:#FBF3DD;font-size:34px;
@@ -335,13 +334,12 @@
   #screen-checkout{align-items:center;}
   .receipt{
     width:100%;background:var(--paper2);border-radius:6px;padding:18px 20px;box-shadow:var(--shadow);
-    background-image:repeating-linear-gradient(#F7EFDD 0 30px,#E9DCB8 30px 31px);
     margin-bottom:14px;
   }
   .receipt-title{font-family:var(--serif);font-weight:900;font-size:18px;color:var(--brick);text-align:center;margin-bottom:10px;}
   .receipt-title rt{color:var(--gold);}
   .receipt-title .tr{font-weight:400;}
-  .receipt-row{display:flex;justify-content:space-between;align-items:flex-end;font-size:14px;padding:3px 0;color:var(--ink-soft);font-family:var(--serif);}
+  .receipt-row{display:flex;justify-content:space-between;align-items:flex-end;font-size:14px;padding:6px 0;border-bottom:1px dashed #E0D3AE;color:var(--ink-soft);font-family:var(--serif);}
   .receipt-row rt{color:#a99a80;}
   .receipt-row.skip{text-decoration:line-through;opacity:.5;}
   .receipt-skip-title{font-size:11.5px;color:var(--ink-soft);margin-top:8px;border-top:1px dashed #d9c79a;padding-top:6px;}
@@ -442,6 +440,77 @@
   .lb-empty .tr{text-align:center;}
   .lb-note{font-size:11.5px;color:#a9977a;text-align:center;margin-bottom:14px;line-height:1.6;}
   .lb-note .tr{color:#a9977a;font-size:11.5px;text-align:center;}
+
+  /* ---------- 版面：兩欄（電腦）／底部操作列（手機） ---------- */
+  .cols,.colL,.colR,.dock{display:contents;}
+  .more{display:none;}
+  .more-menu{display:contents;}
+  .kb-btn{display:none;}
+  .item-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .item-list li .tr{margin:0;text-align:right;flex:0 1 44%;}
+  .sticky-note{padding:20px 20px 16px;}
+  .mw-fold>summary{list-style:none;display:flex;align-items:flex-start;gap:8px;}
+  .mw-fold>summary::-webkit-details-marker{display:none;}
+  .mw-fold>summary::before{content:"▸";color:var(--brick);flex:none;line-height:1.7;}
+  .mw-fold[open]>summary::before{content:"▾";}
+  #feedbackMsg{scroll-margin-bottom:170px;}
+  .receipt-row:last-of-type{border-bottom:none;}
+
+  @media (min-width:900px){
+    body.wide #app{max-width:1060px;}
+    body.wide .screen{padding:28px 36px 34px;}
+    .cols{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:30px;width:100%;align-items:start;}
+    .colL,.colR{display:flex;flex-direction:column;align-items:center;min-width:0;}
+    .dock{display:contents;}
+    #instructionText{order:1;} #exampleText{order:2;} #micBtn{order:3;margin:6px 0 20px;}
+    #micStatus{order:4;margin-top:0;} #feedbackMsg{order:5;} #fbRow{order:6;}
+    #checkoutBtnWrap{order:7;margin-top:16px;} #skipHint{order:8;margin-top:14px;}
+    #screen-shopping #micBtn{width:88px;flex:none;}
+    #screen-shopping .colR > #fbRow,#screen-shopping .colR > #checkoutBtnWrap{width:100%;}
+    .colL > .mw-box{margin-top:14px;}
+    .colR > .mw-box{margin:0 0 18px;}
+  }
+  @media (max-width:899px){
+    .more{display:flex;}
+    .more-menu{display:none;position:absolute;top:46px;left:58px;z-index:60;flex-direction:column;gap:8px;
+      background:var(--paper2);border:1.5px solid var(--gold);border-radius:12px;padding:10px;box-shadow:var(--shadow);}
+    body.menu-open .more-menu{display:flex;}
+    .more{font-size:18px;line-height:1;padding:6px 14px;}
+    #screen-shopping,#screen-checkout,#screen-list{padding-bottom:150px;}
+    .dock{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;position:fixed;left:50%;transform:translateX(-50%);bottom:0;
+      width:100%;max-width:480px;z-index:40;background:var(--paper2);border-top:2px solid var(--gold-soft);
+      padding:10px 14px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -6px 16px rgba(46,36,28,.14);}
+    .dock .btn{padding:10px 14px;font-size:15px;}
+    .dock .btn .sub{font-size:10.5px;}
+    .dock .list-actions{margin:0;flex:1;}
+    .dock .list-actions .btn{width:100%;}
+    #dockShop #fbRow{display:none;order:-1;width:100%;margin:0;}
+    #screen-shopping.kb-open #fbRow{display:flex;}
+    #dockShop #micBtn{width:58px;height:58px;font-size:24px;box-shadow:0 4px 0 var(--brick-dark);flex:none;}
+    #dockShop #micBtn.listening{box-shadow:0 4px 0 #345c39;}
+    .kb-btn{display:flex;align-items:center;justify-content:center;width:46px;height:46px;flex:none;border-radius:50%;
+      border:1.5px solid var(--gold);background:#fff;font-size:20px;cursor:pointer;padding:0;}
+    #dockShop #checkoutBtnWrap{flex:1;margin:0;}
+    #dockShop #checkoutBtnWrap .btn{width:100%;}
+    .dock .wallet-status{flex:1 1 90px;margin:0;padding:2px 4px;background:none;text-align:left;font-size:14px;width:auto;}
+    .dock .wallet-status .tr{text-align:left;font-size:11px;}
+    .dock .checkout-actions{width:auto;flex:none;}
+    .dock .checkout-actions .btn{flex:none;}
+    .dock #checkoutMsg{order:-1;width:100%;min-height:0;margin:0;font-size:13px;}
+    .dock #checkoutMsg:empty{display:none;}
+    #micStatus{margin-top:0;}
+    .mini-note{padding:12px 16px;margin-bottom:12px;}
+    /* 結帳頁：帳單 → 已付 → 皮夾，點錢後馬上看得到放到哪裡 */
+    #screen-checkout .receipt{order:1;padding:14px 16px;margin-bottom:12px;}
+    #screen-checkout .counter-tray{order:2;}
+    #screen-checkout .wallet-area{order:3;}
+    .receipt-row{padding:4px 0;}
+  }
+  @media (max-width:420px){
+    .dock .wallet-status{flex-basis:100%;}
+    .dock .checkout-actions{width:100%;display:flex;}
+    .dock .checkout-actions .btn{flex:1;}
+  }
 </style>
 </head>
 <body>
@@ -451,8 +520,11 @@
   <!-- 上方列：看拼音／重新開始／玩家名字（開始畫面不顯示） -->
   <div class="top-bar" id="topBar">
     <button type="button" class="gear" id="gameGear" aria-label="⚙️">⚙️</button>
-    <button class="btn-pinyin restart" id="btnHome"></button>
-    <button class="btn-pinyin restart" id="btnRestart"></button>
+    <button type="button" class="btn-pinyin more" id="moreBtn" aria-label="menu">⋯</button>
+    <div class="more-menu" id="moreMenu">
+      <button class="btn-pinyin restart" id="btnHome"></button>
+      <button class="btn-pinyin restart" id="btnRestart"></button>
+    </div>
     <span class="chip" id="playerBadge"></span>
   </div>
 
@@ -484,80 +556,109 @@
   <!-- SHOPPING LIST -->
   <div class="screen" id="screen-list">
     <div class="list-heading" id="listHeading"></div>
-    <div class="sticky-note">
-      <div class="sticky-title" id="stickyTitle"></div>
-      <ul class="item-list" id="shoppingItemsList"></ul>
-    </div>
-    <div class="mw-box" id="mwBox1"></div>
-    <div class="list-actions">
-      <button class="btn" id="startShoppingBtn"></button>
+    <div class="cols">
+      <div class="colL">
+        <div class="sticky-note">
+          <div class="sticky-title" id="stickyTitle"></div>
+          <ul class="item-list" id="shoppingItemsList"></ul>
+        </div>
+      </div>
+      <div class="colR">
+        <details class="mw-box mw-fold" id="mwBox1"></details>
+        <div class="dock">
+          <div class="list-actions">
+            <button class="btn" id="startShoppingBtn"></button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- SHOPPING PHASE -->
   <div class="screen" id="screen-shopping">
     <div class="shopping-timer" id="shoppingTimer">⏱ 00:00</div>
-    <div class="mini-note">
-      <div class="mini-note-title" id="miniNoteTitle"></div>
-      <ul class="item-list" id="shoppingItemsList2"></ul>
+    <div class="cols">
+      <div class="colL">
+        <div class="mini-note">
+          <div class="mini-note-title" id="miniNoteTitle"></div>
+          <ul class="item-list" id="shoppingItemsList2"></ul>
+        </div>
+        <details class="mw-box mw-fold" id="mwBox2"></details>
+      </div>
+      <div class="colR">
+        <div class="instruction" id="instructionText"></div>
+        <div class="example" id="exampleText"></div>
+        <div id="micStatus"></div>
+        <div id="feedbackMsg"></div>
+        <div class="dock" id="dockShop">
+          <div class="fallback-row" id="fbRow">
+            <input id="textFallback" type="text">
+            <button id="sendFallback"></button>
+          </div>
+          <button id="micBtn">🎤</button>
+          <button type="button" class="kb-btn" id="kbBtn" aria-label="keyboard">⌨️</button>
+          <div id="checkoutBtnWrap">
+            <button class="btn btn-gold" id="goCheckoutBtn"></button>
+          </div>
+        </div>
+        <div class="skip-hint" id="skipHint"></div>
+      </div>
     </div>
-    <details class="mw-box mw-fold" id="mwBox2"></details>
-    <div class="instruction" id="instructionText"></div>
-    <div class="example" id="exampleText"></div>
-    <div class="mic-zone">
-      <button id="micBtn">🎤</button>
-      <div id="micStatus"></div>
-      <div id="feedbackMsg"></div>
-    </div>
-    <div class="fallback-row">
-      <input id="textFallback" type="text">
-      <button id="sendFallback"></button>
-    </div>
-    <div id="checkoutBtnWrap">
-      <button class="btn btn-gold" id="goCheckoutBtn"></button>
-    </div>
-    <div class="skip-hint" id="skipHint"></div>
   </div>
 
   <!-- CHECKOUT -->
   <div class="screen" id="screen-checkout">
-    <div class="receipt">
-      <div class="receipt-title" id="receiptTitle"></div>
-      <div id="receiptRows"></div>
-      <div class="receipt-total"><span id="totalLabel"></span><span id="totalAmount"></span></div>
+    <div class="cols">
+      <div class="colL">
+        <div class="receipt">
+          <div class="receipt-title" id="receiptTitle"></div>
+          <div id="receiptRows"></div>
+          <div class="receipt-total"><span id="totalLabel"></span><span id="totalAmount"></span></div>
+        </div>
+      </div>
+      <div class="colR">
+        <div class="wallet-area">
+          <div class="wallet-label" id="walletAreaLabel"></div>
+          <div class="piece-row" id="walletPieces"></div>
+        </div>
+        <div class="counter-tray">
+          <div class="counter-label" id="counterAreaLabel"></div>
+          <div class="piece-row" id="counterPieces"></div>
+        </div>
+        <div class="dock">
+          <div class="wallet-status" id="walletStatus"></div>
+          <div class="checkout-actions">
+            <button class="btn btn-outline" id="resetCashBtn"></button>
+            <button class="btn" id="payBtn"></button>
+          </div>
+          <div id="checkoutMsg"></div>
+        </div>
+      </div>
     </div>
-    <div class="wallet-area">
-      <div class="wallet-label" id="walletAreaLabel"></div>
-      <div class="piece-row" id="walletPieces"></div>
-    </div>
-    <div class="counter-tray">
-      <div class="counter-label" id="counterAreaLabel"></div>
-      <div class="piece-row" id="counterPieces"></div>
-    </div>
-    <div class="wallet-status" id="walletStatus"></div>
-    <div class="checkout-actions">
-      <button class="btn btn-outline" id="resetCashBtn"></button>
-      <button class="btn" id="payBtn"></button>
-    </div>
-    <div id="checkoutMsg"></div>
   </div>
 
   <!-- CHANGE VERIFICATION -->
   <div class="screen" id="screen-change">
-    <div class="lb-title" id="changeTitle"></div>
-    <div class="lb-sub" id="changeSub"></div>
-    <div class="change-info" id="changeInfo"></div>
-    <div class="counter-tray">
-      <div class="piece-row" id="changeTrayPieces"></div>
+    <div class="cols">
+      <div class="colL">
+        <div class="lb-title" id="changeTitle"></div>
+        <div class="lb-sub" id="changeSub"></div>
+        <div class="change-info" id="changeInfo"></div>
+        <div class="counter-tray">
+          <div class="piece-row" id="changeTrayPieces"></div>
+        </div>
+      </div>
+      <div class="colR">
+        <div class="instruction" id="changeQuestion"></div>
+        <div class="change-choices">
+          <button class="btn choice-btn" id="changeBtnCorrect"></button>
+          <button class="btn choice-btn" id="changeBtnOver"></button>
+          <button class="btn choice-btn" id="changeBtnUnder"></button>
+        </div>
+        <div id="changeMsg"></div>
+        <button class="btn btn-gold" id="changeContinueBtn" style="display:none;margin-top:14px;width:100%;"></button>
+      </div>
     </div>
-    <div class="instruction" id="changeQuestion"></div>
-    <div class="change-choices">
-      <button class="btn choice-btn" id="changeBtnCorrect"></button>
-      <button class="btn choice-btn" id="changeBtnOver"></button>
-      <button class="btn choice-btn" id="changeBtnUnder"></button>
-    </div>
-    <div id="changeMsg"></div>
-    <button class="btn btn-gold" id="changeContinueBtn" style="display:none;margin-top:14px;width:100%;"></button>
   </div>
 
   <!-- RESULT -->
@@ -1120,6 +1221,8 @@ function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   $(id).classList.add('active');
   document.body.classList.toggle('has-bar', id !== 'screen-start');
+  document.body.classList.toggle('wide', ['screen-list','screen-shopping','screen-checkout','screen-change'].includes(id));
+  document.body.classList.remove('menu-open');
   $('btnRestart').style.display = (id==='screen-result' || id==='screen-leaderboard') ? 'none' : '';
 }
 
@@ -1217,8 +1320,8 @@ function measureNotesHTML(){
 }
 function renderMeasureNotes(){
   const rows = measureNotesHTML();
-  $('mwBox1').innerHTML = `<div class="mw-title">${bi('mwTitle')}</div>${rows}`;
-  $('mwBox2').innerHTML = `<summary class="mw-title">${bi('mwTitle')}</summary>${rows}`;
+  $('mwBox1').innerHTML = `<summary class="mw-title"><div>${bi('mwTitle')}</div></summary>${rows}`;
+  $('mwBox2').innerHTML = `<summary class="mw-title"><div>${bi('mwTitle')}</div></summary>${rows}`;
 }
 
 function renderCheckout(){
@@ -1796,6 +1899,7 @@ if(SR){
   };
 } else {
   micKey = 'mic_unsupported';
+  $('screen-shopping').classList.add('kb-open');   // 沒有語音功能時，直接打開打字欄
   micBtn.style.opacity = '0.4';
   micBtn.style.cursor = 'default';
 }
@@ -2175,6 +2279,22 @@ function goHome(){
   renderAll();
 }
 $('btnHome').addEventListener('click', goHome);
+/* 版面：手機的「⋯」選單、打字欄開關、量詞說明在電腦版預設展開 */
+$('moreBtn').addEventListener('click', (e)=>{ e.stopPropagation(); document.body.classList.toggle('menu-open'); });
+$('moreMenu').addEventListener('click', ()=> document.body.classList.remove('menu-open'));
+document.addEventListener('click', ()=> document.body.classList.remove('menu-open'));
+$('kbBtn').addEventListener('click', ()=>{
+  const scr = $('screen-shopping'); scr.classList.toggle('kb-open');
+  if(scr.classList.contains('kb-open')) $('textFallback').focus();
+});
+const wideMQ = window.matchMedia('(min-width:900px)');
+const syncFolds = () => { $('mwBox1').open = wideMQ.matches; };   // 清單頁電腦版展開；購買頁一律先收起來，才不會太長
+syncFolds(); wideMQ.addEventListener('change', syncFolds);
+/* 手機：提示出現時，捲到看得到的位置（底部操作列不要擋住） */
+new MutationObserver(()=>{
+  const el = $('feedbackMsg');
+  if(el.textContent.trim() && !wideMQ.matches) el.scrollIntoView({block:'nearest', behavior:'smooth'});
+}).observe($('feedbackMsg'), {childList:true, subtree:true, characterData:true});
 $('resultHomeBtn').addEventListener('click', goHome);
 $('lbHomeBtn').addEventListener('click', goHome);
 
