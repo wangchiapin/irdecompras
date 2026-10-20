@@ -1716,10 +1716,12 @@ function nameInText(clean, item){
    所以字對不上時，改把「句子」和「答案」都轉成「拼音＋聲調」再比：
    ・聲調一定要一樣（根 gēn 和 更 gèng 聲調不同，不會算對）
    ・an＝ang、en＝eng、in＝ing 視為一樣（台灣口音常見）
+   ・zh＝z、ch＝c、sh＝s 視為一樣（捲舌音不分，台灣口音和外國學生都常見）
    ・字完全一樣的，照舊直接算對 */
 function pySyl(s){
-  const m = String(s).match(/^((?:zh|ch|sh|[bpmfdtnlgkhjqxrzcsyw])?)(an|ang|en|eng|in|ing)([1-5]?)$/);
-  return m ? m[1] + m[2].replace(/g$/, '') + m[3] : String(s);
+  const t = String(s).replace(/^(z|c|s)h/, '$1');   // zh＝z、ch＝c、sh＝s（捲舌＝平舌）
+  const m = t.match(/^([bpmfdtnlgkhjqxrzcsyw]?)(an|ang|en|eng|in|ing)([1-5]?)$/);
+  return m ? m[1] + m[2].replace(/g$/, '') + m[3] : t;
 }
 const pyCache = new Map();
 function pySeq(str){
