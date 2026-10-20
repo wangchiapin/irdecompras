@@ -30,7 +30,7 @@
     --sans:'Noto Sans SC','Noto Sans TC',sans-serif;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;height:100%;}
+  html,body{margin:0;padding:0;min-height:100%;}
   body{
     font-family:var(--sans);
     background:
@@ -41,7 +41,7 @@
     min-height:100vh;
     min-height:100dvh;
     display:flex;
-    align-items:center;
+    align-items:flex-start;   /* 內容比螢幕高時，從最上面開始排，才捲得到頂端 */
     justify-content:center;
   }
   #app{
