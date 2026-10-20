@@ -703,6 +703,50 @@
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 
 <script>
+
+/* ===== 找不到中文聲音的提示（每天一分鐘遊戲統一做法）===== */
+(function(){
+  var shown=false;
+  function cfg(){ var s={}; try{ s=JSON.parse(localStorage.getItem('hanziGames.settings')||'{}')||{}; }catch(e){} return s; }
+  function isMandarin(v){ var l=String((v&&v.lang)||'').toLowerCase().replace(/_/g,'-'); if(l.indexOf('yue')===0||l.indexOf('zh-hk')===0) return false; return l==='zh'||l.indexOf('zh-')===0||l.indexOf('cmn')===0; }
+  var T={
+    none:{ zh:['這個裝置找不到中文（台灣）語音，聽不到念的內容。請到手機設定安裝「中文（台灣）」語音，或換一個裝置。','这个装置找不到中文（台湾）语音，听不到念的内容。请到手机设置安装「中文（台湾）」语音，或换一个装置。'],
+           es:'No se encontró una voz de chino (Taiwán) en este dispositivo, así que no se oirá el audio. Instala la voz «chino (Taiwán)» en los ajustes del móvil o usa otro dispositivo.',
+           en:'No Chinese (Taiwan) voice was found on this device, so you won’t hear the audio. Install the “Chinese (Taiwan)” voice in your phone settings, or use another device.' },
+    nosynth:{ zh:['這個瀏覽器不支援語音，聽不到念的內容。請換一個瀏覽器（例如 Chrome、Safari）。','这个浏览器不支持语音，听不到念的内容。请换一个浏览器（例如 Chrome、Safari）。'],
+           es:'Este navegador no admite voz, así que no se oirá el audio. Usa otro navegador (por ejemplo Chrome o Safari).',
+           en:'This browser does not support speech, so you won’t hear the audio. Try another browser (for example Chrome or Safari).' }
+  };
+  function show(kind){
+    if(shown||document.getElementById('hgVoiceHint')) return; shown=true;
+    var s=cfg(), lang=s.lang||'es', simp=s.script==='simp', t=T[kind];
+    var st=document.createElement('style');
+    st.textContent='#hgVoiceHint{position:fixed;left:50%;top:8px;transform:translateX(-50%);z-index:2147482999;width:min(94vw,520px);box-sizing:border-box;display:flex;gap:8px;align-items:flex-start;padding:8px 10px;border-radius:12px;background:#fff6dc;border:1px solid #d8b24a;color:#5b4410;font:13px/1.4 system-ui,-apple-system,"Noto Sans TC","PingFang TC",sans-serif;box-shadow:0 2px 10px rgba(0,0,0,.25)}#hgVoiceHint .m{flex:1}#hgVoiceHint .m small{display:block;font-size:11px;opacity:.85;margin-top:2px}#hgVoiceHint button{border:0;background:transparent;color:inherit;font-size:16px;line-height:1;padding:0 2px;cursor:pointer}';
+    document.head.appendChild(st);
+    var d=document.createElement('div'); d.id='hgVoiceHint'; d.setAttribute('role','status');
+    var m=document.createElement('div'); m.className='m';
+    var zh=document.createElement('div'); zh.textContent = simp ? t.zh[1] : t.zh[0]; m.appendChild(zh);
+    if(lang!=='zh'){ var sm=document.createElement('small'); sm.textContent = lang==='en' ? t.en : t.es; m.appendChild(sm); }
+    var x=document.createElement('button'); x.type='button'; x.textContent='✕'; x.setAttribute('aria-label','Close');
+    x.addEventListener('click',function(){ d.remove(); });
+    d.appendChild(m); d.appendChild(x); document.body.appendChild(d);
+  }
+  function check(){
+    try{
+      if(!window.speechSynthesis){ show('nosynth'); return; }
+      var vs=window.speechSynthesis.getVoices()||[];
+      if(vs.length && !vs.some(isMandarin)) show('none');   // 清單是空的時（有些手機一開始就是空的）先不判斷
+    }catch(e){}
+  }
+  function start(){
+    check();
+    try{ window.speechSynthesis.addEventListener('voiceschanged', check); }catch(e){}
+    setTimeout(check,1500); setTimeout(check,4000);
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', start); else start();
+})();
+/* ===== /找不到中文聲音的提示 ===== */
+
 const $ = id => document.getElementById(id);
 const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 
