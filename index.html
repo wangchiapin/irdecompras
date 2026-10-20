@@ -697,10 +697,10 @@
 </div>
 
 <!-- Firebase (compat SDK) — 排行榜（前 15 名，每人只留最高分）。
-     把下面 FIREBASE_CONFIG 換成你自己專案的設定（Project settings → General → SDK setup and configuration → Config）。
-     還沒換之前，遊戲照常可玩，排行榜只會顯示本機示範資料。 -->
+     連到 memorma-24dab 專案（匿名登入，每台裝置一筆）。連不上時遊戲照常可玩，排行榜改顯示本機示範資料。 -->
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-auth-compat.js"></script>
 
 <script>
 const $ = id => document.getElementById(id);
@@ -1408,49 +1408,56 @@ function renderAll(){
 /* ══════════════════════════════════════
    LEADERBOARD (Firebase Firestore) — 前 15 名，同一個名字只留最高分
 ══════════════════════════════════════ */
-/* --- Replace this with your own Firebase project config --- */
+/* --- 連到 memorma-24dab 專案（和翻牌記憶、收納小達人共用）--- */
 const FIREBASE_CONFIG = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "YOUR_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyC_YSDn2OH6_GKKwCq0d8QFNl3fYXzTC60",
+  authDomain: "memorma-24dab.firebaseapp.com",
+  projectId: "memorma-24dab",
+  storageBucket: "memorma-24dab.firebasestorage.app",
+  messagingSenderId: "806709458465",
+  appId: "1:806709458465:web:f0d12acb2f911f2f165560"
 };
 const LEADERBOARD_COLLECTION = "mama_shopping_leaderboard";
 const LEADERBOARD_SIZE = 15;
 
 let db = null;
 let firebaseReady = false;
+let authReady = Promise.resolve(null);
 (function initFirebase(){
-  if(FIREBASE_CONFIG.apiKey === "YOUR_API_KEY") return; // not configured yet — demo mode
   try{
     firebase.initializeApp(FIREBASE_CONFIG);
     db = firebase.firestore();
+    authReady = firebase.auth().signInAnonymously()
+      .then(c => c.user.uid)
+      .catch(e => { console.warn('Anonymous sign-in failed:', e); return null; });
     firebaseReady = true;
   }catch(e){ console.warn('Firebase init failed, using demo leaderboard.', e); }
 })();
 
 /* local fallback store, used only when Firebase isn't configured / reachable */
 let demoLeaderboard = [];
-/* 同一個名字（不分大小寫）只算一個人，文件 ID 就用這個 */
+/* 同一個名字（不分大小寫）在本機備援榜只算一個人 */
 function nameKey(name){
   const k = String(name||'').trim().toLowerCase().replace(/[\/\s.]+/g,'_').slice(0,24);
   return k || 'anon';
 }
 
+/* 線上榜：每台裝置（匿名登入的 uid）一筆，只留最高分 */
 async function submitScoreToLeaderboard(name, scoreVal){
   const cleanName = String(name).slice(0,12);
-  const val = Math.round(scoreVal);
+  const val = Math.max(0, Math.min(100, Math.round(scoreVal)));
   if(firebaseReady && db){
     try{
-      const ref = db.collection(LEADERBOARD_COLLECTION).doc(nameKey(cleanName));
-      await db.runTransaction(async tx=>{
-        const snap = await tx.get(ref);
-        if(!snap.exists || (snap.data().score||0) < val){
-          tx.set(ref, { name: cleanName, score: val, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
-        }
-      });
+      const uid = await authReady;
+      if(!uid) throw new Error('no auth');
+      const ref = db.collection(LEADERBOARD_COLLECTION).doc(uid);
+      const snap = await ref.get();
+      if(!snap.exists || (snap.data().score||0) < val){
+        await ref.set({ name: cleanName, score: val, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      }else if(snap.data().name !== cleanName){
+        /* 分數沒破紀錄，但改了名字：用舊分數更新名字 */
+        await ref.set({ name: cleanName, score: snap.data().score, updatedAt: firebase.firestore.FieldValue.serverTimestamp() });
+      }
       return true;
     }catch(e){ console.warn('Could not submit score to Firestore.', e); }
   }
@@ -1460,6 +1467,7 @@ async function submitScoreToLeaderboard(name, scoreVal){
   else if(old.score < val){ old.score = val; old.name = cleanName; }
   return false;
 }
+
 async function fetchLeaderboard(){
   if(firebaseReady && db){
     try{
