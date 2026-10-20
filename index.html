@@ -310,7 +310,7 @@
   }
   #micBtn.listening{background:var(--green);box-shadow:0 8px 0 #345c39;animation:micpulse 1.1s infinite;}
   @keyframes micpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-  #micStatus{font-size:calc(13.5px * var(--fs));color:var(--ink-soft);text-align:center;min-height:18px;}
+  #micStatus{font-size:calc(13.5px * var(--fs));color:var(--ink-soft);text-align:center;min-height:18px;margin-top:10px;}
   #micStatus .tr{text-align:center;}
   #feedbackMsg{font-size:calc(15px * var(--fs));font-weight:700;text-align:center;min-height:22px;color:var(--brick);width:100%;line-height:1.7;}
   #feedbackMsg .tr{font-weight:500;color:var(--brick);text-align:center;}
@@ -797,8 +797,9 @@ const UI = {
   restart:    ['↻ 重新開始', '', ''],
   home:       ['🏠 回首頁', 'Inicio', 'Home'],
   skip:       ['跳過 ▶', 'Saltar', 'Skip'],
-  mic_ready:  ['按住麥克風說話', 'Mantén pulsado el micrófono para hablar', 'Hold the microphone to speak'],
-  mic_listen: ['聆聽中…放開結束', 'Escuchando… suelta para terminar', 'Listening… release to finish'],
+  mic_ready:  ['點一下說話，說完再點一下；也可以按住說話', 'Toca para hablar y toca otra vez al terminar, o mantén pulsado', 'Tap to speak and tap again when done, or hold to speak'],
+  mic_listen: ['聆聽中…', 'Escuchando…', 'Listening…'],
+  mic_listen_tap: ['聆聽中…說完請再點一下', 'Escuchando… toca otra vez al terminar', 'Listening… tap again when done'],
   mic_nospeech:['沒聽到聲音，請再按一次麥克風試試', 'No escuché nada. Inténtalo otra vez.', "Didn't hear anything. Try again."],
   mic_denied: ['無法取得麥克風權限，請改用下方打字輸入', 'No se pudo acceder al micrófono. Escribe abajo.', "Can't access the microphone. Type below instead."],
   mic_error:  ['麥克風無法使用，請改用下方打字輸入', 'El micrófono no funciona. Escribe abajo.', 'Microphone unavailable. Type below instead.'],
@@ -867,6 +868,56 @@ const ITEMS = [
   {h:['起','司'],t:['起','司'],p:['qǐ','sī'],m:'包',mp:'bāo',mt:1,price:60},
   {h:['果','酱'],t:['果','醬'],p:['guǒ','jiàng'],m:'罐',mp:'guàn',mt:4,price:90},
   {h:['蜂','蜜'],t:['蜂','蜜'],p:['fēng','mì'],m:'瓶',mp:'píng',mt:2,price:150},
+  {h:['豆','浆'],t:['豆','漿'],p:['dòu','jiāng'],m:'瓶',mp:'píng',mt:2,price:25},
+  {h:['汽','水'],t:['汽','水'],p:['qì','shuǐ'],m:'瓶',mp:'píng',mt:2,price:25},
+  {h:['洗','碗','精'],t:['洗','碗','精'],p:['xǐ','wǎn','jīng'],m:'瓶',mp:'píng',mt:2,price:80},
+  {h:['养','乐','多'],t:['養','樂','多'],p:['yǎng','lè','duō'],m:'瓶',mp:'píng',mt:2,price:10},
+  {h:['麻','油'],t:['麻','油'],p:['má','yóu'],m:'瓶',mp:'píng',mt:2,price:120},
+  {h:['醋'],t:['醋'],p:['cù'],m:'瓶',mp:'píng',mt:2,price:35},
+  {h:['面','粉'],t:['麵','粉'],p:['miàn','fěn'],m:'包',mp:'bāo',mt:1,price:40},
+  {h:['洋','芋','片'],t:['洋','芋','片'],p:['yáng','yù','piàn'],m:'包',mp:'bāo',mt:1,price:35},
+  {h:['海','苔'],t:['海','苔'],p:['hǎi','tái'],m:'包',mp:'bāo',mt:1,price:40},
+  {h:['水','饺'],t:['水','餃'],p:['shuǐ','jiǎo'],m:'包',mp:'bāo',mt:1,price:130},
+  {h:['汤','圆'],t:['湯','圓'],p:['tāng','yuán'],m:'包',mp:'bāo',mt:1,price:70},
+  {h:['麦','片'],t:['麥','片'],p:['mài','piàn'],m:'包',mp:'bāo',mt:1,price:120},
+  {h:['面','纸'],t:['面','紙'],p:['miàn','zhǐ'],m:'包',mp:'bāo',mt:1,price:20},
+  {h:['火','腿'],t:['火','腿'],p:['huǒ','tuǐ'],m:'包',mp:'bāo',mt:1,price:80},
+  {h:['蒜','头'],t:['蒜','頭'],p:['suàn','tóu'],m:'颗',mp:'kē',mt:1,price:10},
+  {h:['芭','乐'],t:['芭','樂'],p:['bā','lè'],m:'颗',mp:'kē',mt:1,price:30},
+  {h:['桃','子'],t:['桃','子'],p:['táo','zi'],m:'颗',mp:'kē',mt:1,price:20},
+  {h:['奇','异','果'],t:['奇','異','果'],p:['qí','yì','guǒ'],m:'颗',mp:'kē',mt:1,price:20},
+  {h:['芒','果'],t:['芒','果'],p:['máng','guǒ'],m:'颗',mp:'kē',mt:1,price:60},
+  {h:['凤','梨'],t:['鳳','梨'],p:['fèng','lí'],m:'颗',mp:'kē',mt:1,price:60},
+  {h:['青','椒'],t:['青','椒'],p:['qīng','jiāo'],m:'颗',mp:'kē',mt:1,price:15},
+  {h:['吐','司'],t:['吐','司'],p:['tǔ','sī'],m:'条',mp:'tiáo',mt:2,price:50},
+  {h:['毛','巾'],t:['毛','巾'],p:['máo','jīn'],m:'条',mp:'tiáo',mt:2,price:100},
+  {h:['小','黄','瓜'],t:['小','黃','瓜'],p:['xiǎo','huáng','guā'],m:'条',mp:'tiáo',mt:2,price:15},
+  {h:['茄','子'],t:['茄','子'],p:['qié','zi'],m:'条',mp:'tiáo',mt:2,price:25},
+  {h:['洗','面','乳'],t:['洗','面','乳'],p:['xǐ','miàn','rǔ'],m:'条',mp:'tiáo',mt:2,price:120},
+  {h:['白','萝','卜'],t:['白','蘿','蔔'],p:['bái','luó','bo'],m:'根',mp:'gēn',mt:1,price:40},
+  {h:['热','狗'],t:['熱','狗'],p:['rè','gǒu'],m:'根',mp:'gēn',mt:1,price:15},
+  {h:['葱'],t:['蔥'],p:['cōng'],m:'把',mp:'bǎ',mt:3,price:15},
+  {h:['菠','菜'],t:['菠','菜'],p:['bō','cài'],m:'把',mp:'bǎ',mt:3,price:30},
+  {h:['伞'],t:['傘'],p:['sǎn'],m:'把',mp:'bǎ',mt:3,price:150},
+  {h:['排','骨'],t:['排','骨'],p:['pái','gǔ'],m:'斤',mp:'jīn',mt:1,price:180},
+  {h:['蛤','蜊'],t:['蛤','蜊'],p:['gé','lí'],m:'斤',mp:'jīn',mt:1,price:120},
+  {h:['鸡','胸','肉'],t:['雞','胸','肉'],p:['jī','xiōng','ròu'],m:'份',mp:'fèn',mt:4,price:80},
+  {h:['猪','排'],t:['豬','排'],p:['zhū','pái'],m:'份',mp:'fèn',mt:4,price:70},
+  {h:['羊','肉'],t:['羊','肉'],p:['yáng','ròu'],m:'份',mp:'fèn',mt:4,price:200},
+  {h:['蛋','糕'],t:['蛋','糕'],p:['dàn','gāo'],m:'块',mp:'kuài',mt:4,price:60},
+  {h:['豆','干'],t:['豆','乾'],p:['dòu','gān'],m:'块',mp:'kuài',mt:4,price:20},
+  {h:['奶','油'],t:['奶','油'],p:['nǎi','yóu'],m:'块',mp:'kuài',mt:4,price:80},
+  {h:['花','生','酱'],t:['花','生','醬'],p:['huā','shēng','jiàng'],m:'罐',mp:'guàn',mt:4,price:80},
+  {h:['泡','菜'],t:['泡','菜'],p:['pào','cài'],m:'罐',mp:'guàn',mt:4,price:90},
+  {h:['奶','粉'],t:['奶','粉'],p:['nǎi','fěn'],m:'罐',mp:'guàn',mt:4,price:300},
+  {h:['原','子','笔'],t:['原','子','筆'],p:['yuán','zǐ','bǐ'],m:'支',mp:'zhī',mt:1,price:15},
+  {h:['汤','匙'],t:['湯','匙'],p:['tāng','chí'],m:'支',mp:'zhī',mt:1,price:10},
+  {h:['护','唇','膏'],t:['護','唇','膏'],p:['hù','chún','gāo'],m:'支',mp:'zhī',mt:1,price:100},
+  {h:['荔','枝'],t:['荔','枝'],p:['lì','zhī'],m:'串',mp:'chuàn',mt:4,price:100},
+  {h:['龙','眼'],t:['龍','眼'],p:['lóng','yǎn'],m:'串',mp:'chuàn',mt:4,price:100},
+  {h:['蓝','莓'],t:['藍','莓'],p:['lán','méi'],m:'盒',mp:'hé',mt:2,price:100},
+  {h:['寿','司'],t:['壽','司'],p:['shòu','sī'],m:'盒',mp:'hé',mt:2,price:80},
+  {h:['便','当'],t:['便','當'],p:['biàn','dāng'],m:'盒',mp:'hé',mt:2,price:90},
 ];
 /* 每個物品的西文／英文說法：[[西文單數, 西文複數], [英文單數, 英文複數]]，順序和 ITEMS 一樣 */
 const ITEM_TR = [
@@ -920,6 +971,56 @@ const ITEM_TR = [
   [['paquete de queso','paquetes de queso'],['pack of cheese','packs of cheese']],
   [['frasco de mermelada','frascos de mermelada'],['jar of jam','jars of jam']],
   [['botella de miel','botellas de miel'],['bottle of honey','bottles of honey']],
+  [['botella de leche de soja','botellas de leche de soja'],['bottle of soy milk','bottles of soy milk']],
+  [['botella de refresco','botellas de refresco'],['bottle of soda','bottles of soda']],
+  [['botella de lavavajillas','botellas de lavavajillas'],['bottle of dish soap','bottles of dish soap']],
+  [['botellita de Yakult (bebida probiótica)','botellitas de Yakult (bebida probiótica)'],['bottle of Yakult (probiotic drink)','bottles of Yakult (probiotic drink)']],
+  [['botella de aceite de sésamo','botellas de aceite de sésamo'],['bottle of sesame oil','bottles of sesame oil']],
+  [['botella de vinagre','botellas de vinagre'],['bottle of vinegar','bottles of vinegar']],
+  [['paquete de harina','paquetes de harina'],['bag of flour','bags of flour']],
+  [['bolsa de papas fritas (chips)','bolsas de papas fritas (chips)'],['bag of potato chips','bags of potato chips']],
+  [['paquete de algas nori','paquetes de algas nori'],['pack of seaweed snack','packs of seaweed snack']],
+  [['paquete de dumplings','paquetes de dumplings'],['pack of dumplings','packs of dumplings']],
+  [['paquete de tangyuan (bolitas de arroz glutinoso)','paquetes de tangyuan (bolitas de arroz glutinoso)'],['pack of tangyuan (glutinous rice balls)','packs of tangyuan (glutinous rice balls)']],
+  [['paquete de avena en hojuelas','paquetes de avena en hojuelas'],['pack of oat cereal','packs of oat cereal']],
+  [['paquete de pañuelos de papel','paquetes de pañuelos de papel'],['pack of tissues','packs of tissues']],
+  [['paquete de jamón','paquetes de jamón'],['pack of ham','packs of ham']],
+  [['cabeza de ajo','cabezas de ajo'],['head of garlic','heads of garlic']],
+  [['guayaba','guayabas'],['guava','guavas']],
+  [['durazno (melocotón)','duraznos (melocotones)'],['peach','peaches']],
+  [['kiwi','kiwis'],['kiwi','kiwis']],
+  [['mango','mangos'],['mango','mangoes']],
+  [['piña','piñas'],['pineapple','pineapples']],
+  [['pimiento verde','pimientos verdes'],['green pepper','green peppers']],
+  [['pan de molde','panes de molde'],['loaf of sliced bread','loaves of sliced bread']],
+  [['toalla','toallas'],['towel','towels']],
+  [['pepino','pepinos'],['cucumber','cucumbers']],
+  [['berenjena','berenjenas'],['eggplant','eggplants']],
+  [['tubo de limpiador facial','tubos de limpiador facial'],['tube of face wash','tubes of face wash']],
+  [['rábano blanco (daikon)','rábanos blancos (daikon)'],['daikon radish','daikon radishes']],
+  [['salchicha','salchichas'],['hot dog sausage','hot dog sausages']],
+  [['manojo de cebollín','manojos de cebollín'],['bunch of green onions','bunches of green onions']],
+  [['manojo de espinacas','manojos de espinacas'],['bunch of spinach','bunches of spinach']],
+  [['paraguas','paraguas'],['umbrella','umbrellas']],
+  [['jin (600 g) de costillas','jin (600 g) de costillas'],['jin (600 g) of pork ribs','jin (600 g) of pork ribs']],
+  [['jin (600 g) de almejas','jin (600 g) de almejas'],['jin (600 g) of clams','jin (600 g) of clams']],
+  [['porción de pechuga de pollo','porciones de pechuga de pollo'],['portion of chicken breast','portions of chicken breast']],
+  [['porción de chuleta de cerdo','porciones de chuleta de cerdo'],['portion of pork chop','portions of pork chop']],
+  [['porción de cordero','porciones de cordero'],['portion of lamb','portions of lamb']],
+  [['trozo de pastel','trozos de pastel'],['piece of cake','pieces of cake']],
+  [['trozo de tofu seco','trozos de tofu seco'],['piece of dried tofu','pieces of dried tofu']],
+  [['bloque de mantequilla','bloques de mantequilla'],['block of butter','blocks of butter']],
+  [['frasco de crema de maní','frascos de crema de maní'],['jar of peanut butter','jars of peanut butter']],
+  [['frasco de kimchi','frascos de kimchi'],['jar of kimchi','jars of kimchi']],
+  [['lata de leche en polvo','latas de leche en polvo'],['can of milk powder','cans of milk powder']],
+  [['bolígrafo','bolígrafos'],['ballpoint pen','ballpoint pens']],
+  [['cuchara','cucharas'],['spoon','spoons']],
+  [['bálsamo labial','bálsamos labiales'],['lip balm','lip balms']],
+  [['racimo de lichis','racimos de lichis'],['bunch of lychees','bunches of lychees']],
+  [['racimo de longanes','racimos de longanes'],['bunch of longans','bunches of longans']],
+  [['caja de arándanos','cajas de arándanos'],['box of blueberries','boxes of blueberries']],
+  [['caja de sushi','cajas de sushi'],['box of sushi','boxes of sushi']],
+  [['caja de comida (bento)','cajas de comida (bento)'],['boxed meal (bento)','boxed meals (bento)']],
 ];
 ITEMS.forEach((it, i) => { it.es = ITEM_TR[i][0]; it.en = ITEM_TR[i][1]; });
 
@@ -944,30 +1045,30 @@ const MEASURE_ASR_ALIASES = {
 const MEASURE_INFO = {
   '瓶':{py:'píng', zh:'裝在瓶子裡的東西（牛奶、果汁、油）',
         es:'botella — cosas que se venden en botella (leche, jugo, aceite)', en:'bottle — things sold in bottles (milk, juice, oil)'},
-  '颗':{py:'kē', zh:'小小圓圓的東西（蘋果、雞蛋、番茄）',
-        es:'pieza — cosas pequeñas y redondeadas (manzanas, huevos, tomates)', en:'piece — small, roundish things (apples, eggs, tomatoes)'},
-  '条':{py:'tiáo', zh:'又長又細的東西（魚、牙膏、麵包）',
-        es:'cosas largas y delgadas (pescado, tubo de pasta de dientes, barra de pan)', en:'long, thin things (fish, a tube of toothpaste, a loaf of bread)'},
-  '根':{py:'gēn', zh:'細細長長、像棍子的東西（香蕉、胡蘿蔔、玉米）',
-        es:'cosas largas como un palo (plátanos, zanahorias, maíz)', en:'long, stick-like things (bananas, carrots, corn)'},
+  '颗':{py:'kē', zh:'小小圓圓、一個一個的東西（蘋果、雞蛋、芒果、鳳梨）',
+        es:'pieza — cosas pequeñas y redondeadas (manzanas, huevos, mangos, piñas)', en:'piece — small, roundish things (apples, eggs, mangoes, pineapples)'},
+  '条':{py:'tiáo', zh:'又長又細、長條形的東西（魚、牙膏、麵包、毛巾）',
+        es:'cosas largas y delgadas (pescado, tubo de pasta de dientes, barra de pan, toalla)', en:'long, thin things (fish, a tube of toothpaste, a loaf of bread, a towel)'},
+  '根':{py:'gēn', zh:'細細長長、像棍子的東西（香蕉、胡蘿蔔、玉米、熱狗）',
+        es:'cosas largas como un palo (plátanos, zanahorias, maíz, salchichas)', en:'long, stick-like things (bananas, carrots, corn, hot dogs)'},
   '包':{py:'bāo', zh:'用袋子或包裝包起來的東西（米、鹽、糖、泡麵）',
         es:'paquete / bolsa — productos envasados (arroz, sal, azúcar, fideos)', en:'pack / bag — packaged goods (rice, salt, sugar, noodles)'},
-  '把':{py:'bǎ', zh:'可以用一隻手抓起來的一把（青菜）',
-        es:'manojo — lo que se agarra con una mano (verduras de hoja)', en:'a bunch — what you can grab in one hand (leafy greens)'},
-  '盒':{py:'hé', zh:'裝在盒子裡的東西（豆腐、巧克力、草莓）',
-        es:'caja — cosas que vienen en caja (tofu, chocolates, fresas)', en:'box — things sold in boxes (tofu, chocolates, strawberries)'},
+  '把':{py:'bǎ', zh:'可以用手抓一把，或有握把的東西（青菜、蔥、雨傘）',
+        es:'manojo, o cosas con mango (verduras de hoja, cebollín, paraguas)', en:'a bunch, or things with a handle (leafy greens, green onions, an umbrella)'},
+  '盒':{py:'hé', zh:'裝在盒子裡的東西（豆腐、草莓、壽司、便當）',
+        es:'caja — cosas que vienen en caja (tofu, fresas, sushi, bento)', en:'box — things sold in boxes (tofu, strawberries, sushi, bento)'},
   '份':{py:'fèn', zh:'一份一份分好的食物（雞肉、豬肉、牛肉）',
         es:'porción — comida ya dividida en porciones (pollo, cerdo, res)', en:'portion — food divided into servings (chicken, pork, beef)'},
-  '斤':{py:'jīn', zh:'重量單位，台灣一斤是 600 公克（蝦子）',
-        es:'jin — unidad de peso; en Taiwán 1 jin = 600 g (camarones)', en:'jin — a weight unit; in Taiwan 1 jin = 600 g (shrimp)'},
-  '块':{py:'kuài', zh:'一塊一塊的東西（肥皂）',
-        es:'pieza / pastilla — cosas en bloque (jabón)', en:'piece / bar — block-shaped things (soap)'},
-  '支':{py:'zhī', zh:'細長、有握把的東西（牙刷）',
-        es:'objetos alargados con mango (cepillo de dientes)', en:'slender objects with a handle (toothbrush)'},
-  '罐':{py:'guàn', zh:'裝在罐子或罐頭裡的東西（咖啡、果醬）',
-        es:'lata / frasco — cosas en lata o frasco (café, mermelada)', en:'can / jar — things in a can or jar (coffee, jam)'},
-  '串':{py:'chuàn', zh:'一串一串連在一起的東西（葡萄）',
-        es:'racimo — cosas unidas en un tallo (uvas)', en:'a bunch on a stem (grapes)'}
+  '斤':{py:'jīn', zh:'重量單位，台灣一斤是 600 公克（蝦子、排骨、蛤蜊）',
+        es:'jin — unidad de peso; en Taiwán 1 jin = 600 g (camarones, costillas, almejas)', en:'jin — a weight unit; in Taiwan 1 jin = 600 g (shrimp, ribs, clams)'},
+  '块':{py:'kuài', zh:'一塊一塊的東西（肥皂、蛋糕、奶油）',
+        es:'pieza / pastilla — cosas en bloque o trozo (jabón, pastel, mantequilla)', en:'piece / bar — block-shaped things (soap, cake, butter)'},
+  '支':{py:'zhī', zh:'細長的東西，常有握把（牙刷、原子筆、湯匙）',
+        es:'objetos alargados, a menudo con mango (cepillo de dientes, bolígrafo, cuchara)', en:'slender objects, often with a handle (toothbrush, pen, spoon)'},
+  '罐':{py:'guàn', zh:'裝在罐子或罐頭裡的東西（咖啡、果醬、花生醬、奶粉）',
+        es:'lata / frasco — cosas en lata o frasco (café, mermelada, crema de maní, leche en polvo)', en:'can / jar — things in a can or jar (coffee, jam, peanut butter, milk powder)'},
+  '串':{py:'chuàn', zh:'一串一串連在一起的東西（葡萄、荔枝、龍眼）',
+        es:'racimo — cosas unidas en un tallo (uvas, lichis, longanes)', en:'a bunch on a stem (grapes, lychees, longans)'}
 };
 
 /* ══════════════════════════════════════
@@ -1528,8 +1629,12 @@ function hasSeq(hay, need){
 function nameInTextFuzzy(clean, item){
   if(nameInText(clean, item)) return true;                       // 字完全一樣
   if(!PINYIN_OK) return false;
-  for(const o of ITEMS){ if(o !== item && nameInText(clean, o)) return false; }   // 明明說了別的東西
   const hay = pySeq(clean), need = pySeq(item.t.join(''));
+  for(const o of ITEMS){                                         // 明明說了別的東西 → 不算
+    if(o === item || !nameInText(clean, o)) continue;
+    if(hasSeq(need, pySeq(o.t.join('')))) continue;              // 但別的東西的名字只是這個名字的一部分（蔥／洋蔥）就不算衝突
+    return false;
+  }
   if(!hasSeq(hay, need)) return false;
   for(const o of ITEMS){                                         // 更長的名字（例如「玉米」）也對得上時，不算「米」
     if(o === item) continue;
@@ -1646,7 +1751,7 @@ $('goCheckoutBtn').addEventListener('click', ()=>{
     if(!ok) return;
   }
   finalizeShopping();
-  if(recognition && listening){ try{ recognition.stop(); }catch(e){} }
+  cancelListening();
   if(doneCount===0){
     // 什麼都沒買，沒有東西可結帳，直接看結果
     TOTAL_PRICE = 0;
@@ -1662,6 +1767,19 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 let recognition = null;
 let listening = false;
 const micBtn = $('micBtn');
+/* 兩種說話方式自動分辨（看手指按了多久）：
+   ・按住說話：按超過 HOLD_MS，放開就結束
+   ・點一下說話：按得很短（算「點一下」），繼續聽；說完再點一下才結束
+   點一下模式裡，如果瀏覽器因為停頓而自己結束，就自動接著再聽，把前後幾段合起來判斷
+   （外國學生常常斷句，不會只收到前半句）。最長聽 MAX_LISTEN_MS 就自動結束。 */
+const HOLD_MS = 500;
+const MAX_LISTEN_MS = 15000;
+let recRunning = false;      // 瀏覽器的辨識正在跑
+let wantListen = false;      // 學生還想繼續說（還沒按結束）
+let tapMode = false, wasTap = false;
+let pressing = false, ignoreUp = false, pressAt = 0, listenStart = 0, listenTimer = null;
+let segments = [];           // 每一段辨識結果（每段是最多 5 個候選句）
+let discardNext = false;
 if(SR){
   recognition = new SR();
   recognition.lang = 'zh-TW';
@@ -1669,11 +1787,14 @@ if(SR){
   recognition.interimResults = false;
   recognition.maxAlternatives = 5;
   recognition.onresult = (e)=>{
+    const r = e.results[e.results.length - 1];
     const alts = [];
-    for(let i=0;i<e.results[0].length;i++){ alts.push(e.results[0][i].transcript); }
-    processAnswerAlternatives(alts);
+    for(let i=0;i<r.length;i++){ alts.push(r[i].transcript); }
+    if(alts.length) segments.push(alts);
   };
   recognition.onerror = (e)=>{
+    if(!listening) return;                                  // 已經結束了，不理會後來的錯誤
+    if(tapMode && wantListen && (e.error === 'no-speech' || e.error === 'aborted')) return;   // 點一下模式：沒聲音就繼續等
     micErrorShown = true;
     if(e.error === 'no-speech') micKey = 'mic_nospeech';
     else if(e.error === 'not-allowed' || e.error === 'service-not-allowed') micKey = 'mic_denied';
@@ -1681,32 +1802,88 @@ if(SR){
     renderMic();
   };
   recognition.onend = ()=>{
-    listening=false; micBtn.classList.remove('listening');
-    // 剛剛有出錯就保留錯誤提示，不要馬上被「按住說話」蓋掉
-    if(micErrorShown){ micErrorShown=false; return; }
-    if(!checkAllDone()){ micKey = 'mic_ready'; renderMic(); }
+    recRunning = false;
+    if(listening && wantListen && tapMode && !micErrorShown && Date.now() - listenStart < MAX_LISTEN_MS){
+      setTimeout(()=>{ if(listening && wantListen && tapMode && !recRunning) recStart(); }, 150);   // 被停頓切掉了，接著再聽
+      return;
+    }
+    finishListening();
   };
 } else {
   micKey = 'mic_unsupported';
   micBtn.style.opacity = '0.4';
   micBtn.style.cursor = 'default';
 }
+function recStart(){
+  try{ recognition.start(); recRunning = true; }catch(e){ recRunning = false; }
+}
+/* 結束一次說話：把前後幾段合起來判斷 */
+function finishListening(){
+  if(!listening) return;
+  clearTimeout(listenTimer);
+  const segs = segments; segments = [];
+  const discard = discardNext; discardNext = false;
+  const hadTap = wasTap;
+  listening = false; wantListen = false; tapMode = false; wasTap = false;
+  micBtn.classList.remove('listening');
+  if(!discard && segs.length){
+    const cands = [];
+    for(let k = 0; k < 5; k++){
+      const t = segs.map(s => s[k] || s[0]).join('');
+      if(t && !cands.includes(t)) cands.push(t);
+    }
+    processAnswerAlternatives(cands);
+  } else if(!discard && hadTap && !micErrorShown){
+    micKey = 'mic_nospeech'; micErrorShown = true;
+  }
+  // 剛剛有出錯就保留錯誤提示，不要馬上被「說話」提示蓋掉
+  if(micErrorShown){ micErrorShown = false; renderMic(); return; }
+  if(!checkAllDone()){ micKey = 'mic_ready'; renderMic(); }
+}
 function startListening(){
   if(!recognition || checkAllDone() || listening) return;
-  micErrorShown = false;
-  listening = true;
+  micErrorShown = false; segments = []; discardNext = false;
+  listening = true; wantListen = true; tapMode = false; wasTap = false;
+  listenStart = Date.now();
   micBtn.classList.add('listening');
   micKey = 'mic_listen'; renderMic();
-  try{ recognition.start(); }catch(e){ listening=false; micBtn.classList.remove('listening'); }
+  clearTimeout(listenTimer);
+  listenTimer = setTimeout(()=>{ stopListening(); }, MAX_LISTEN_MS);   // 最長 15 秒自動結束
+  recStart();
+  if(!recRunning) finishListening();                                    // 瀏覽器開不起來
 }
 function stopListening(){
   if(!recognition || !listening) return;
-  try{ recognition.stop(); }catch(e){}
+  wantListen = false;
+  if(recRunning){ try{ recognition.stop(); }catch(e){ finishListening(); } }
+  else finishListening();
 }
-micBtn.addEventListener('pointerdown', (e)=>{ e.preventDefault(); startListening(); });
-micBtn.addEventListener('pointerup', ()=>{ stopListening(); });
-micBtn.addEventListener('pointercancel', ()=>{ stopListening(); });
-micBtn.addEventListener('pointerleave', ()=>{ stopListening(); });
+/* 放棄這一次說話（回首頁、去結帳、重新開始時用）：不判斷、不顯示結果 */
+function cancelListening(){
+  if(!recognition || !listening) return;
+  discardNext = true; wantListen = false;
+  try{ if(recRunning) recognition.abort ? recognition.abort() : recognition.stop(); }catch(e){}
+  finishListening();
+}
+function releasePress(cancel){
+  if(!pressing) return;
+  pressing = false;
+  if(ignoreUp){ ignoreUp = false; return; }
+  if(!listening) return;
+  if(cancel){ stopListening(); return; }
+  if(Date.now() - pressAt >= HOLD_MS){ stopListening(); }                 // 按住說話：放開就結束
+  else { tapMode = true; wasTap = true; micKey = 'mic_listen_tap'; renderMic(); }   // 點一下：繼續聽，等再點一下
+}
+micBtn.addEventListener('pointerdown', (e)=>{
+  e.preventDefault();
+  pressing = true;
+  if(listening && tapMode){ ignoreUp = true; stopListening(); return; }   // 點一下模式裡再點一下＝說完了
+  pressAt = Date.now();
+  startListening();
+});
+micBtn.addEventListener('pointerup', ()=>{ releasePress(false); });
+micBtn.addEventListener('pointercancel', ()=>{ releasePress(true); });
+micBtn.addEventListener('pointerleave', ()=>{ releasePress(true); });
 micBtn.addEventListener('contextmenu', (e)=>{ e.preventDefault(); });
 $('sendFallback').addEventListener('click', ()=>{
   const inp = $('textFallback');
@@ -1984,7 +2161,7 @@ function restartGame(skipConfirm){
       'Start over? Your score for this round will be lost.')) return;
   gameToken++;                                   // 讓還沒跑完的延遲動作（付款後跳畫面）失效
   clearInterval(introTimer); stopShoppingTimer(); stopSpeak();
-  if(recognition && listening){ try{ recognition.stop(); }catch(e){} }
+  cancelListening();
   paymentDone = false; resultShown = false; lbOpen = false; shoppingEndTime = 0;
   feedbackFn = null; checkoutMsgFn = null; changeMsgFn = null;
   playAgain();
@@ -2001,7 +2178,7 @@ function goHome(){
       'Go back to the start page? Your score for this round will be lost.')) return;
   gameToken++;
   clearInterval(introTimer); stopShoppingTimer(); stopSpeak();
-  if(recognition && listening){ try{ recognition.stop(); }catch(e){} }
+  cancelListening();
   closeSet();
   score = 0; shoppingList = []; paymentDone = false; resultShown = false; lbOpen = false; shoppingEndTime = 0;
   checkoutBuilt = false; changeShown = false; currentChangeScenario = null; resultInfo = null; lbRows = null;
