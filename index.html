@@ -312,6 +312,9 @@
   @keyframes micpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
   #micStatus{font-size:13.5px;color:var(--ink-soft);text-align:center;min-height:18px;margin-top:10px;}
   #micStatus .tr{text-align:center;}
+  #micStatus .heard{margin-top:6px;font-size:15px;color:var(--ink);}
+  #micBtn.processing{background:var(--gold);box-shadow:0 8px 0 #8c6d1d;animation:micpulse .8s infinite;}
+  #dockShop #micBtn.processing{box-shadow:0 4px 0 #8c6d1d;}
   #feedbackMsg{font-size:15px;font-weight:700;text-align:center;min-height:22px;color:var(--brick);width:100%;line-height:1.7;}
   #feedbackMsg .tr{font-weight:500;color:var(--brick);text-align:center;}
   #feedbackMsg.good,#feedbackMsg.good .tr{color:var(--green);}
@@ -903,6 +906,7 @@ const UI = {
   mic_ready:  ['點一下說話，說完再點一下；也可以按住說話', 'Toca para hablar y toca otra vez al terminar, o mantén pulsado', 'Tap to speak and tap again when done, or hold to speak'],
   mic_listen: ['聆聽中…', 'Escuchando…', 'Listening…'],
   mic_listen_tap: ['聆聽中…說完請再點一下', 'Escuchando… toca otra vez al terminar', 'Listening… tap again when done'],
+  mic_processing:['辨識中…', 'Procesando…', 'Processing…'],
   mic_nospeech:['沒聽到聲音，請再按一次麥克風試試', 'No escuché nada. Inténtalo otra vez.', "Didn't hear anything. Try again."],
   mic_denied: ['無法取得麥克風權限，請改用下方打字輸入', 'No se pudo acceder al micrófono. Escribe abajo.', "Can't access the microphone. Type below instead."],
   mic_error:  ['麥克風無法使用，請改用下方打字輸入', 'El micrófono no funciona. Escribe abajo.', 'Microphone unavailable. Type below instead.'],
@@ -1289,7 +1293,16 @@ function renderStatic(){
   set('lbHomeBtn', bt('home'));
   $('playerBadge').textContent = playerName;
 }
-function renderMic(){ $('micStatus').innerHTML = bi(micKey); }
+let heardText = '';        // 聽的時候，目前聽到的字（給學生看）
+const heardLabel = ['聽到：', 'Escuché: ', 'Heard: '];
+function renderMic(){
+  let h = bi(micKey);
+  if(heardText && (listening || processing)){
+    const lab = ONLYZH() ? Z(heardLabel[0]) : Z(heardLabel[0]) + ' ';
+    h += `<div class="heard">${esc(lab)}<b>${esc(Z(heardText))}</b></div>`;
+  }
+  $('micStatus').innerHTML = h;
+}
 function renderFeedback(){
   const el = $('feedbackMsg');
   el.innerHTML = feedbackFn ? feedbackFn() : '';
@@ -1877,6 +1890,8 @@ const micBtn = $('micBtn');
 const HOLD_MS = 500;
 const MAX_LISTEN_MS = 15000;
 let recRunning = false;      // 瀏覽器的辨識正在跑
+let interim = null;          // 目前這一段「還沒確定」的辨識結果（iPhone 常常來不及確定）
+let processing = false, procTimer = null;   // 學生按了結束，正在等瀏覽器交出結果
 let wantListen = false;      // 學生還想繼續說（還沒按結束）
 let tapMode = false, wasTap = false;
 let pressing = false, ignoreUp = false, pressAt = 0, listenStart = 0, listenTimer = null;
@@ -1886,16 +1901,21 @@ if(SR){
   recognition = new SR();
   recognition.lang = 'zh-TW';
   recognition.continuous = false;
-  recognition.interimResults = false;
+  recognition.interimResults = true;     // 連「還沒確定」的結果也收，說完馬上結束才不會漏掉
   recognition.maxAlternatives = 5;
   recognition.onresult = (e)=>{
     const r = e.results[e.results.length - 1];
     const alts = [];
     for(let i=0;i<r.length;i++){ alts.push(r[i].transcript); }
-    if(alts.length) segments.push(alts);
+    if(!alts.length) return;
+    if(r.isFinal){ segments.push(alts); interim = null; }   // 確定的結果
+    else { interim = alts; }                                // 還沒確定，先記著
+    heardText = segments.map(a => a[0]).join('') + (interim ? interim[0] : '');
+    if(listening || processing) renderMic();
   };
   recognition.onerror = (e)=>{
     if(!listening) return;                                  // 已經結束了，不理會後來的錯誤
+    if(e.error === 'no-speech' && (segments.length || interim)) return;   // 其實有聽到東西，不要當成沒聲音
     if(tapMode && wantListen && (e.error === 'no-speech' || e.error === 'aborted')) return;   // 點一下模式：沒聲音就繼續等
     micErrorShown = true;
     if(e.error === 'no-speech') micKey = 'mic_nospeech';
@@ -1905,6 +1925,7 @@ if(SR){
   };
   recognition.onend = ()=>{
     recRunning = false;
+    if(interim){ segments.push(interim); interim = null; }   // 這一段結束時還沒確定，也算數
     if(listening && wantListen && tapMode && !micErrorShown && Date.now() - listenStart < MAX_LISTEN_MS){
       setTimeout(()=>{ if(listening && wantListen && tapMode && !recRunning) recStart(); }, 150);   // 被停頓切掉了，接著再聽
       return;
@@ -1924,6 +1945,9 @@ function recStart(){
 function finishListening(){
   if(!listening) return;
   clearTimeout(listenTimer);
+  if(interim){ segments.push(interim); interim = null; }
+  clearTimeout(procTimer); processing = false; heardText = '';
+  micBtn.classList.remove('processing');
   const segs = segments; segments = [];
   const discard = discardNext; discardNext = false;
   const hadTap = wasTap;
@@ -1945,7 +1969,7 @@ function finishListening(){
 }
 function startListening(){
   if(!recognition || checkAllDone() || listening) return;
-  micErrorShown = false; segments = []; discardNext = false;
+  micErrorShown = false; segments = []; interim = null; heardText = ''; discardNext = false;
   listening = true; wantListen = true; tapMode = false; wasTap = false;
   listenStart = Date.now();
   micBtn.classList.add('listening');
@@ -1958,8 +1982,13 @@ function startListening(){
 function stopListening(){
   if(!recognition || !listening) return;
   wantListen = false;
-  if(recRunning){ try{ recognition.stop(); }catch(e){ finishListening(); } }
-  else finishListening();
+  if(recRunning){
+    // 等瀏覽器把最後一段交出來（iPhone 會慢一點）：顯示「辨識中」，最多等 2.5 秒
+    processing = true; micBtn.classList.remove('listening'); micBtn.classList.add('processing');
+    micKey = 'mic_processing'; renderMic();
+    clearTimeout(procTimer); procTimer = setTimeout(()=>{ if(listening) finishListening(); }, 2500);
+    try{ recognition.stop(); }catch(e){ finishListening(); }
+  } else finishListening();
 }
 /* 放棄這一次說話（回首頁、去結帳、重新開始時用）：不判斷、不顯示結果 */
 function cancelListening(){
