@@ -23,6 +23,7 @@
     --shadow: 0 10px 30px rgba(46,36,28,0.18);
     --serif:'Noto Serif TC',serif;
     --sans:'Noto Sans TC',sans-serif;
+    --fs:1.15;   /* 字體大小倍率：標準 1／大 1.15／特大 1.3（⚙️ 可改，預設「大」） */
   }
   html[lang="zh-Hans"]{
     --serif:'Noto Serif SC','Noto Serif TC',serif;
@@ -82,30 +83,31 @@
   }
   body.has-bar .top-bar{display:flex;}
   .btn-pinyin{
-    font-family:var(--sans);font-size:12.5px;font-weight:500;padding:6px 11px;border-radius:999px;
+    font-family:var(--sans);font-size:calc(12.5px * var(--fs));font-weight:500;padding:6px 11px;border-radius:999px;
     border:1.5px solid var(--gold);background:transparent;color:var(--ink-soft);cursor:pointer;
   }
   .btn-pinyin[aria-pressed="true"]{background:var(--brick);color:#FBF3DD;border-color:var(--brick);}
-  .btn-pinyin.restart{color:var(--ink);border-color:var(--ink);}
+  .btn-pinyin.restart{color:var(--ink);border-color:var(--ink);white-space:nowrap;}
+  .top-bar{flex-wrap:wrap;}
+  .home-wide{width:100%;margin-top:14px;}
 
   /* ---------- ⚙️ 設定（和小狗找寶藏、跑吧、色數、比比看一樣：字體／語言／拼音注音／語速） ---------- */
   .gear{
     width:40px;height:40px;padding:0;margin:0;flex:0 0 auto;border-radius:999px;cursor:pointer;
-    border:1.5px solid var(--gold);background:var(--paper2);color:var(--ink);font-size:19px;line-height:1;
+    border:1.5px solid var(--gold);background:var(--paper2);color:var(--ink);font-size:calc(19px * var(--fs));line-height:1;
     display:flex;align-items:center;justify-content:center;
   }
-  .start-gear{position:fixed;top:14px;right:14px;z-index:5;}
   .ov{position:fixed;inset:0;z-index:1200;display:flex;align-items:center;justify-content:center;padding:20px;background:rgba(46,36,28,.55);overflow-y:auto;}
   .ov.hide{display:none;}
   .ovCard{width:100%;max-width:380px;margin:auto;background:var(--paper2);border:2px solid var(--gold);border-radius:20px;padding:18px 16px;text-align:center;box-shadow:var(--shadow);}
-  .ovCard h2{margin:0 0 10px;color:var(--brick-dark);font-family:var(--serif);font-size:20px;}
+  .ovCard h2{margin:0 0 10px;color:var(--brick-dark);font-family:var(--serif);font-size:calc(20px * var(--fs));}
   .setGroup{margin:12px 0;text-align:left;}
-  .setGroup h3{font-size:13px;margin:0 0 6px;color:var(--brick-dark);}
-  .setGroup h3 small{font-size:11px;font-weight:400;color:var(--ink-soft);}
+  .setGroup h3{font-size:calc(13px * var(--fs));margin:0 0 6px;color:var(--brick-dark);}
+  .setGroup h3 small{font-size:calc(11px * var(--fs));font-weight:400;color:var(--ink-soft);}
   .setGroup h3 small::before{content:" · ";}
   .opts{display:flex;flex-wrap:wrap;gap:6px;}
-  .opt{flex:1 1 0;min-width:0;padding:7px 8px;border-radius:999px;border:1.5px solid var(--gold-soft);background:#fff;color:var(--ink);font-family:var(--sans);font-size:14px;cursor:pointer;line-height:1.25;}
-  .opt small{display:block;font-size:10.5px;opacity:.8;}
+  .opt{flex:1 1 0;min-width:0;padding:7px 4px;white-space:nowrap;border-radius:999px;border:1.5px solid var(--gold-soft);background:#fff;color:var(--ink);font-family:var(--sans);font-size:calc(14px * var(--fs));cursor:pointer;line-height:1.25;}
+  .opt small{display:block;font-size:calc(10.5px * var(--fs));opacity:.8;}
   .opts.two .opt{flex:1 1 40%;}
   .opt.on{background:var(--gold);border-color:var(--gold);color:#2E241C;font-weight:700;}
   #setDone{margin-top:6px;width:100%;}
@@ -114,14 +116,14 @@
   /* 拼音＋注音兩者並列 */
   rt .zy{display:block;}
   .chip{
-    margin-left:auto;font-size:12.5px;background:var(--paper2);padding:5px 11px;border-radius:999px;
+    margin-left:auto;font-size:calc(12.5px * var(--fs));background:var(--paper2);padding:5px 11px;border-radius:999px;
     max-width:36%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--ink);
   }
 
   /* ---------- 小字翻譯 ---------- */
   .zh{display:block;}
-  .tr{display:block;font-family:var(--sans);font-size:12.5px;font-weight:400;color:var(--ink-soft);line-height:1.5;letter-spacing:0;}
-  .btn .sub{display:block;font-size:11px;font-weight:500;opacity:.85;letter-spacing:0;margin-top:2px;font-family:var(--sans);}
+  .tr{display:block;font-family:var(--sans);font-size:calc(12.5px * var(--fs));font-weight:400;color:var(--ink-soft);line-height:1.5;letter-spacing:0;}
+  .btn .sub{display:block;font-size:calc(11px * var(--fs));font-weight:500;opacity:.85;letter-spacing:0;margin-top:2px;font-family:var(--sans);}
 
   /* ---------- START SCREEN ---------- */
   #screen-start{
@@ -134,22 +136,33 @@
     text-align:center;
   }
   #screen-start .tr{color:var(--gold-soft);}
-  .market-icon{font-size:52px;margin-bottom:6px;}
+  .market-icon{font-size:calc(52px * var(--fs));margin-bottom:6px;}
   .title-main{
     font-family:var(--serif);
     font-weight:900;
-    font-size:40px;
+    font-size:calc(40px * var(--fs));
     line-height:1.35;
     margin:6px 0 4px;
     color:#FBF3DD;
   }
-  .subtitle{font-size:15px;color:var(--gold-soft);letter-spacing:1px;margin-bottom:4px;}
-  .brand{font-size:13px;color:var(--gold-soft);opacity:.85;letter-spacing:3px;margin-bottom:28px;}
-  .field-label{font-size:15px;margin-bottom:10px;color:var(--paper2);}
+  .subtitle{font-size:calc(15px * var(--fs));color:var(--gold-soft);letter-spacing:1px;margin-bottom:28px;}
+  .field-label{font-size:calc(15px * var(--fs));margin-bottom:10px;color:var(--paper2);}
+  /* 開始畫面：名字欄下面直接放設定（字體、語言、更多設定） */
+  .start-settings{margin-top:16px;text-align:left;}
+  .ss-group{margin-bottom:10px;}
+  .ss-label{font-size:calc(13px * var(--fs));color:var(--gold-soft);margin:0 0 5px 2px;}
+  .ss-label small{font-size:calc(11px * var(--fs));font-weight:400;opacity:.85;}
+  .ss-label small::before{content:" · ";}
+  .start-settings .opt{background:rgba(251,243,221,.10);border-color:var(--gold-soft);color:var(--paper2);}
+  .start-settings .opt.on{background:var(--gold);border-color:var(--gold);color:#2E241C;}
+  .ss-more{
+    display:block;margin:4px auto 0;background:transparent;border:none;color:var(--gold-soft);
+    font-family:var(--sans);font-size:calc(13px * var(--fs));padding:6px 10px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;
+  }
   #nameInput{
     width:100%;
     padding:14px 16px;
-    font-size:18px;
+    font-size:calc(18px * var(--fs));
     border-radius:10px;
     border:2px solid var(--gold);
     background:#FBF3DD;
@@ -162,16 +175,16 @@
   .seg-group{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:16px;}
   .seg{display:inline-flex;border:1.5px solid var(--gold-soft);border-radius:999px;overflow:hidden;}
   .seg button{
-    background:transparent;color:var(--gold-soft);border:none;padding:8px 15px;font-size:14px;
+    background:transparent;color:var(--gold-soft);border:none;padding:8px 15px;font-size:calc(14px * var(--fs));
     cursor:pointer;font-family:var(--sans);
   }
   .seg button[aria-pressed="true"]{background:var(--gold);color:#2E241C;font-weight:700;}
-  .flavor-text{margin:22px 0 0;font-size:14px;line-height:1.8;color:var(--paper2);}
-  .flavor-text .zh{font-size:15px;}
+  .flavor-text{margin:22px 0 0;font-size:calc(14px * var(--fs));line-height:1.8;color:var(--paper2);}
+  .flavor-text .zh{font-size:calc(15px * var(--fs));}
   .btn{
     font-family:var(--sans);
     font-weight:700;
-    font-size:17px;
+    font-size:calc(17px * var(--fs));
     padding:14px 28px;
     border-radius:10px;
     border:none;
@@ -204,22 +217,22 @@
     position:relative;
     box-shadow:inset 0 0 0 1px rgba(255,255,255,0.3);
   }
-  .mama-avatar{font-size:46px;text-align:center;margin-bottom:14px;}
+  .mama-avatar{font-size:calc(46px * var(--fs));text-align:center;margin-bottom:14px;}
   #dialogueText{
     font-family:var(--serif);
-    font-size:22px;
+    font-size:calc(22px * var(--fs));
     line-height:2.4;
     color:var(--ink);
     min-height:170px;
   }
   #dialogueText rt{color:var(--brick);}
-  #dialogueTr{margin-top:10px;font-size:14px;min-height:44px;}
+  #dialogueTr{margin-top:10px;font-size:calc(14px * var(--fs));min-height:44px;}
   .center-btn-wrap{display:flex;justify-content:center;margin-top:22px;}
 
   /* ---------- SHOPPING LIST ---------- */
   #screen-list{justify-content:flex-start;align-items:center;}
   .list-heading{
-    font-family:var(--serif);font-weight:900;font-size:22px;margin:0 0 18px;text-align:center;color:var(--brick-dark);
+    font-family:var(--serif);font-weight:900;font-size:calc(22px * var(--fs));margin:0 0 18px;text-align:center;color:var(--brick-dark);
   }
   .list-heading rt{color:var(--gold);}
   .list-heading .tr{font-weight:400;margin-top:2px;}
@@ -238,7 +251,7 @@
     width:60px;height:26px;background:rgba(192,151,42,0.55);
     box-shadow:0 2px 4px rgba(0,0,0,0.15);
   }
-  .sticky-title{font-family:var(--serif);font-weight:700;font-size:16px;color:var(--brick);margin-bottom:10px;border-bottom:2px dashed var(--gold);padding-bottom:8px;}
+  .sticky-title{font-family:var(--serif);font-weight:700;font-size:calc(16px * var(--fs));color:var(--brick);margin-bottom:10px;border-bottom:2px dashed var(--gold);padding-bottom:8px;}
   .sticky-title rt{color:var(--gold);}
   .sticky-title .tr{font-weight:400;}
   .item-list{list-style:none;margin:0;padding:0;}
@@ -249,13 +262,27 @@
     color:var(--ink);
   }
   .item-list li:last-child{border-bottom:none;}
-  .item-list .zhline{display:inline-block;position:relative;font-size:19px;}
+  .item-list .zhline{display:inline-block;position:relative;font-size:calc(19px * var(--fs));}
   .item-list .tr{margin-top:1px;}
   .item-list .strike{position:absolute;left:0;top:50%;height:2px;width:0;background:var(--line);transition:width .35s ease;}
   .item-list li.done{color:#8f8577;}
   .item-list li.done .strike{width:100%;}
   .item-list li rt{color:var(--ink-soft);}
   .list-actions{margin-top:24px;width:100%;display:flex;justify-content:center;}
+  /* 量詞說明（購物清單下方） */
+  .mw-box{width:100%;margin-top:16px;background:var(--paper2);border:1px dashed #D9C79A;border-radius:10px;padding:12px 16px;}
+  .mw-title{font-size:calc(13px * var(--fs));font-weight:700;color:var(--brick);}
+  .mw-title rt{color:var(--gold);}
+  .mw-title .tr{font-weight:400;}
+  .mw-fold>summary{cursor:pointer;}
+  .mw-fold[open]>summary{margin-bottom:6px;}
+  .mw-row{display:flex;gap:12px;align-items:flex-start;padding:8px 0;border-top:1px dashed #D9C79A;}
+  .mw-box>.mw-title+.mw-row,.mw-fold>summary+.mw-row{margin-top:8px;}
+  .mw-head{font-family:var(--serif);font-weight:900;font-size:calc(26px * var(--fs));color:var(--brick-dark);min-width:36px;text-align:center;line-height:1.5;}
+  .mw-head rt{color:var(--ink-soft);}
+  .mw-body{flex:1;min-width:0;text-align:left;}
+  .mw-body .zh{font-size:calc(14.5px * var(--fs));color:var(--ink);line-height:1.95;}
+  .mw-body rt{color:var(--ink-soft);}
 
   /* ---------- SHOPPING PHASE ---------- */
   #screen-shopping{align-items:center;}
@@ -263,47 +290,47 @@
     width:100%;background:var(--paper2);border-radius:10px;padding:14px 18px;margin-bottom:16px;
     box-shadow:var(--shadow);
   }
-  .mini-note-title{font-size:13px;color:var(--brick);font-weight:700;margin-bottom:6px;}
+  .mini-note-title{font-size:calc(13px * var(--fs));color:var(--brick);font-weight:700;margin-bottom:6px;}
   .mini-note-title rt{color:var(--gold);}
-  .mini-note .item-list .zhline{font-size:18px;}
+  .mini-note .item-list .zhline{font-size:calc(18px * var(--fs));}
 
-  .instruction{font-size:14.5px;color:var(--ink-soft);text-align:center;margin-bottom:6px;line-height:1.9;}
+  .instruction{font-size:calc(14.5px * var(--fs));color:var(--ink-soft);text-align:center;margin-bottom:6px;line-height:1.9;}
   .instruction rt{color:var(--brick);}
   .instruction .tr{text-align:center;}
-  .example{font-size:14px;color:var(--gold);text-align:center;margin-bottom:14px;}
+  .example{font-size:calc(14px * var(--fs));color:var(--gold);text-align:center;margin-bottom:14px;}
   .example rt{color:var(--ink-soft);}
   .example .tr{text-align:center;}
 
   .mic-zone{display:flex;flex-direction:column;align-items:center;gap:10px;margin:8px 0 8px;width:100%;}
   #micBtn{
     width:88px;height:88px;border-radius:50%;
-    background:var(--brick);border:none;color:#FBF3DD;font-size:34px;
+    background:var(--brick);border:none;color:#FBF3DD;font-size:calc(34px * var(--fs));
     box-shadow:0 8px 0 var(--brick-dark);cursor:pointer;
     touch-action:none;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none;
   }
   #micBtn.listening{background:var(--green);box-shadow:0 8px 0 #345c39;animation:micpulse 1.1s infinite;}
   @keyframes micpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-  #micStatus{font-size:13.5px;color:var(--ink-soft);text-align:center;min-height:18px;}
+  #micStatus{font-size:calc(13.5px * var(--fs));color:var(--ink-soft);text-align:center;min-height:18px;}
   #micStatus .tr{text-align:center;}
-  #feedbackMsg{font-size:15px;font-weight:700;text-align:center;min-height:22px;color:var(--brick);width:100%;line-height:1.7;}
+  #feedbackMsg{font-size:calc(15px * var(--fs));font-weight:700;text-align:center;min-height:22px;color:var(--brick);width:100%;line-height:1.7;}
   #feedbackMsg .tr{font-weight:500;color:var(--brick);text-align:center;}
   #feedbackMsg.good,#feedbackMsg.good .tr{color:var(--green);}
 
   .fallback-row{display:flex;gap:8px;width:100%;margin-top:8px;}
   #textFallback{
-    flex:1;padding:12px 14px;border-radius:8px;border:1.5px solid var(--gold);background:#FBF3DD;font-size:16px;font-family:var(--sans);outline:none;
+    flex:1;min-width:0;padding:12px 14px;border-radius:8px;border:1.5px solid var(--gold);background:#FBF3DD;font-size:calc(16px * var(--fs));font-family:var(--sans);outline:none;
   }
   #sendFallback{padding:0 18px;border-radius:8px;border:none;background:var(--ink);color:var(--paper2);font-weight:700;cursor:pointer;font-family:var(--sans);}
 
   #checkoutBtnWrap{margin-top:22px;width:100%;display:flex;justify-content:center;}
   .shopping-timer{
-    font-family:var(--serif);font-weight:800;font-size:17px;color:var(--brick-dark);
+    font-family:var(--serif);font-weight:800;font-size:calc(17px * var(--fs));color:var(--brick-dark);
     text-align:center;margin-bottom:12px;letter-spacing:1px;
     background:var(--paper);display:inline-block;padding:4px 14px;border-radius:20px;
     align-self:center;
   }
-  .skip-hint{font-size:11.5px;color:#a9977a;text-align:center;margin-top:8px;line-height:1.6;}
-  .skip-hint .tr{color:#a9977a;font-size:11.5px;text-align:center;}
+  .skip-hint{font-size:calc(11.5px * var(--fs));color:#a9977a;text-align:center;margin-top:8px;line-height:1.6;}
+  .skip-hint .tr{color:#a9977a;font-size:calc(11.5px * var(--fs));text-align:center;}
 
   /* ---------- CHECKOUT ---------- */
   #screen-checkout{align-items:center;}
@@ -312,22 +339,22 @@
     background-image:repeating-linear-gradient(#F7EFDD 0 30px,#E9DCB8 30px 31px);
     margin-bottom:14px;
   }
-  .receipt-title{font-family:var(--serif);font-weight:900;font-size:18px;color:var(--brick);text-align:center;margin-bottom:10px;}
+  .receipt-title{font-family:var(--serif);font-weight:900;font-size:calc(18px * var(--fs));color:var(--brick);text-align:center;margin-bottom:10px;}
   .receipt-title rt{color:var(--gold);}
   .receipt-title .tr{font-weight:400;}
-  .receipt-row{display:flex;justify-content:space-between;align-items:flex-end;font-size:14px;padding:3px 0;color:var(--ink-soft);font-family:var(--serif);}
+  .receipt-row{display:flex;justify-content:space-between;align-items:flex-end;font-size:calc(14px * var(--fs));padding:3px 0;color:var(--ink-soft);font-family:var(--serif);}
   .receipt-row rt{color:#a99a80;}
   .receipt-row.skip{text-decoration:line-through;opacity:.5;}
-  .receipt-skip-title{font-size:11.5px;color:var(--ink-soft);margin-top:8px;border-top:1px dashed #d9c79a;padding-top:6px;}
+  .receipt-skip-title{font-size:calc(11.5px * var(--fs));color:var(--ink-soft);margin-top:8px;border-top:1px dashed #d9c79a;padding-top:6px;}
   .receipt-total{
-    display:flex;justify-content:space-between;align-items:flex-end;font-size:20px;font-weight:900;color:var(--brick-dark);
+    display:flex;justify-content:space-between;align-items:flex-end;font-size:calc(20px * var(--fs));font-weight:900;color:var(--brick-dark);
     border-top:2px dashed var(--gold);margin-top:10px;padding-top:10px;font-family:var(--serif);
   }
   .receipt-total rt{color:var(--gold);}
   .receipt-total .tr{color:var(--brick-dark);font-weight:500;}
 
   .wallet-status{
-    font-size:16px;font-weight:700;text-align:center;margin:2px 0 12px;color:var(--ink);
+    font-size:calc(16px * var(--fs));font-weight:700;text-align:center;margin:2px 0 12px;color:var(--ink);
     background:var(--paper);padding:8px 14px;border-radius:8px;width:100%;
   }
   .wallet-status rt{color:var(--brick);}
@@ -337,11 +364,11 @@
     width:100%;background:var(--paper2);border-radius:12px;padding:14px;box-shadow:var(--shadow);margin-bottom:12px;
   }
   .counter-tray{background:#EFE4C9;border:2px dashed var(--gold);box-shadow:none;}
-  .wallet-label, .counter-label{font-size:12.5px;color:var(--ink-soft);margin-bottom:8px;text-align:center;}
+  .wallet-label, .counter-label{font-size:calc(12.5px * var(--fs));color:var(--ink-soft);margin-bottom:8px;text-align:center;}
   .counter-label{color:var(--brick);font-weight:700;}
   .wallet-label .tr, .counter-label .tr{text-align:center;font-weight:400;}
   .piece-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;align-items:center;min-height:58px;}
-  .piece-empty{font-size:12.5px;color:#a9977a;padding:8px;text-align:center;}
+  .piece-empty{font-size:calc(12.5px * var(--fs));color:#a9977a;padding:8px;text-align:center;}
   .piece-empty .tr{color:#a9977a;text-align:center;}
   .cash-piece{
     cursor:pointer;transition:transform .12s ease;touch-action:manipulation;
@@ -350,9 +377,9 @@
   .cash-piece:active{transform:scale(0.9);}
 
   .checkout-actions{display:flex;gap:10px;width:100%;}
-  .checkout-actions .btn{flex:1;font-size:15px;padding:12px 10px;}
+  .checkout-actions .btn{flex:1;font-size:calc(15px * var(--fs));padding:12px 10px;}
 
-  #checkoutMsg{font-size:14.5px;font-weight:700;text-align:center;min-height:22px;margin-top:6px;color:var(--brick);width:100%;line-height:1.7;}
+  #checkoutMsg{font-size:calc(14.5px * var(--fs));font-weight:700;text-align:center;min-height:22px;margin-top:6px;color:var(--brick);width:100%;line-height:1.7;}
   #checkoutMsg .tr{font-weight:500;color:inherit;text-align:center;}
   #checkoutMsg.good{color:var(--green);}
 
@@ -362,60 +389,60 @@
     width:100%;background:var(--paper2);border-radius:10px;padding:12px 16px;margin-bottom:12px;
     box-shadow:var(--shadow);font-family:var(--serif);
   }
-  .ci-row{display:flex;justify-content:space-between;align-items:flex-end;padding:4px 0;font-size:15px;color:var(--ink-soft);}
-  .ci-row.due{border-top:2px dashed var(--gold);margin-top:6px;padding-top:8px;font-size:18px;font-weight:900;color:var(--brick-dark);}
+  .ci-row{display:flex;justify-content:space-between;align-items:flex-end;padding:4px 0;font-size:calc(15px * var(--fs));color:var(--ink-soft);}
+  .ci-row.due{border-top:2px dashed var(--gold);margin-top:6px;padding-top:8px;font-size:calc(18px * var(--fs));font-weight:900;color:var(--brick-dark);}
   .ci-row rt{color:var(--ink-soft);}
   .ci-row .tr{color:inherit;font-weight:400;}
   .change-choices{display:flex;flex-direction:column;gap:10px;width:100%;margin:16px 0 8px;}
   .choice-btn{background:var(--paper2);color:var(--ink);border:2px solid var(--gold);box-shadow:none;padding:12px 10px;}
   .choice-btn rt{color:var(--ink-soft);}
   .choice-btn:disabled{opacity:.45;cursor:default;}
-  #changeMsg{font-size:14.5px;font-weight:700;text-align:center;min-height:22px;color:var(--brick);line-height:1.8;margin-top:4px;width:100%;}
+  #changeMsg{font-size:calc(14.5px * var(--fs));font-weight:700;text-align:center;min-height:22px;color:var(--brick);line-height:1.8;margin-top:4px;width:100%;}
   #changeMsg .tr{font-weight:500;color:inherit;text-align:center;}
   #changeMsg.good{color:var(--green);}
 
   /* ---------- RESULT ---------- */
   #screen-result{align-items:center;justify-content:center;text-align:center;}
   .result-actions{display:flex;gap:10px;width:100%;}
-  .result-actions .btn{flex:1;font-size:15px;padding:12px 10px;}
-  .stars{font-size:44px;letter-spacing:6px;margin:6px 0 4px;color:var(--gold);}
-  .result-title{font-family:var(--serif);font-weight:900;font-size:26px;color:var(--brick-dark);margin-bottom:6px;}
+  .result-actions .btn{flex:1;font-size:calc(15px * var(--fs));padding:12px 10px;}
+  .stars{font-size:calc(44px * var(--fs));letter-spacing:6px;margin:6px 0 4px;color:var(--gold);}
+  .result-title{font-family:var(--serif);font-weight:900;font-size:calc(26px * var(--fs));color:var(--brick-dark);margin-bottom:6px;}
   .result-title rt{color:var(--gold);}
   .result-title .tr{font-weight:400;text-align:center;}
-  .result-name{font-size:15px;color:var(--ink-soft);margin-bottom:14px;}
+  .result-name{font-size:calc(15px * var(--fs));color:var(--ink-soft);margin-bottom:14px;}
   .result-name .tr{text-align:center;}
   .result-card{
     width:100%;background:var(--paper2);border-radius:12px;padding:16px 20px;box-shadow:var(--shadow);text-align:left;margin-bottom:20px;
   }
-  .result-line{display:flex;justify-content:space-between;align-items:flex-end;font-size:15px;padding:6px 0;border-bottom:1px dashed #d9c79a;font-family:var(--serif);}
+  .result-line{display:flex;justify-content:space-between;align-items:flex-end;font-size:calc(15px * var(--fs));padding:6px 0;border-bottom:1px dashed #d9c79a;font-family:var(--serif);}
   .result-line:last-child{border-bottom:none;}
   .result-line rt{color:var(--ink-soft);}
   .result-line .tr{font-weight:400;}
   .result-line b{color:var(--brick-dark);}
-  .result-score{font-size:34px;font-weight:900;color:var(--brick);text-align:center;margin:6px 0 14px;font-family:var(--serif);}
+  .result-score{font-size:calc(34px * var(--fs));font-weight:900;color:var(--brick);text-align:center;margin:6px 0 14px;font-family:var(--serif);}
   .result-score rt{color:var(--gold);}
 
   /* ---------- LEADERBOARD ---------- */
   #screen-leaderboard{align-items:center;}
-  .lb-title{font-family:var(--serif);font-weight:900;font-size:22px;color:var(--brick-dark);margin-bottom:6px;text-align:center;}
+  .lb-title{font-family:var(--serif);font-weight:900;font-size:calc(22px * var(--fs));color:var(--brick-dark);margin-bottom:6px;text-align:center;}
   .lb-title rt{color:var(--gold);}
   .lb-title .tr{font-weight:400;text-align:center;}
-  .lb-sub{font-size:12.5px;color:var(--ink-soft);margin-bottom:16px;text-align:center;}
+  .lb-sub{font-size:calc(12.5px * var(--fs));color:var(--ink-soft);margin-bottom:16px;text-align:center;}
   .lb-sub .tr{text-align:center;}
   .lb-list{width:100%;background:var(--paper2);border-radius:12px;padding:8px 6px;box-shadow:var(--shadow);margin-bottom:16px;min-height:120px;}
   .lb-row{display:flex;align-items:center;gap:10px;padding:10px 10px;border-bottom:1px solid #E6D9B4;}
   .lb-row:last-child{border-bottom:none;}
-  .lb-rank{width:28px;text-align:center;font-family:var(--serif);font-weight:900;color:var(--brick);font-size:15px;}
+  .lb-rank{width:28px;text-align:center;font-family:var(--serif);font-weight:900;color:var(--brick);font-size:calc(15px * var(--fs));}
   .lb-row.top1 .lb-rank{color:#C0972A;}
   .lb-row.top2 .lb-rank{color:#8a8f99;}
   .lb-row.top3 .lb-rank{color:#a9683b;}
-  .lb-name{flex:1;font-family:var(--serif);font-size:15px;color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-  .lb-score{font-family:var(--serif);font-weight:800;font-size:15px;color:var(--brick-dark);}
+  .lb-name{flex:1;font-family:var(--serif);font-size:calc(15px * var(--fs));color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .lb-score{font-family:var(--serif);font-weight:800;font-size:calc(15px * var(--fs));color:var(--brick-dark);}
   .lb-row.me{background:rgba(192,151,42,0.16);border-radius:8px;}
-  .lb-empty{padding:26px 10px;text-align:center;color:var(--ink-soft);font-size:14px;}
+  .lb-empty{padding:26px 10px;text-align:center;color:var(--ink-soft);font-size:calc(14px * var(--fs));}
   .lb-empty .tr{text-align:center;}
-  .lb-note{font-size:11.5px;color:#a9977a;text-align:center;margin-bottom:14px;line-height:1.6;}
-  .lb-note .tr{color:#a9977a;font-size:11.5px;text-align:center;}
+  .lb-note{font-size:calc(11.5px * var(--fs));color:#a9977a;text-align:center;margin-bottom:14px;line-height:1.6;}
+  .lb-note .tr{color:#a9977a;font-size:calc(11.5px * var(--fs));text-align:center;}
 </style>
 </head>
 <body>
@@ -425,6 +452,7 @@
   <!-- 上方列：看拼音／重新開始／玩家名字（開始畫面不顯示） -->
   <div class="top-bar" id="topBar">
     <button type="button" class="gear" id="gameGear" aria-label="⚙️">⚙️</button>
+    <button class="btn-pinyin restart" id="btnHome"></button>
     <button class="btn-pinyin restart" id="btnRestart"></button>
     <span class="chip" id="playerBadge"></span>
   </div>
@@ -434,10 +462,9 @@
     <div class="market-icon">🛒</div>
     <div class="title-main" id="startTitle"></div>
     <div class="subtitle" id="startSubtitle"></div>
-    <div class="brand" id="startBrand"></div>
     <div class="field-label" id="fieldLabel"></div>
     <input id="nameInput" type="text" maxlength="12" autocomplete="off">
-    <button type="button" class="gear start-gear" id="gateGear" aria-label="⚙️">⚙️</button>
+    <div class="start-settings" id="startSettings"></div>
     <button class="btn" id="startBtn" disabled></button>
     <p class="flavor-text" id="flavorText"></p>
   </div>
@@ -450,6 +477,7 @@
       <div class="tr" id="dialogueTr"></div>
     </div>
     <div class="center-btn-wrap">
+      <button class="btn btn-outline" id="skipIntroBtn"></button>
       <button class="btn btn-gold" id="confirmBtn" style="display:none;"></button>
     </div>
   </div>
@@ -461,6 +489,7 @@
       <div class="sticky-title" id="stickyTitle"></div>
       <ul class="item-list" id="shoppingItemsList"></ul>
     </div>
+    <div class="mw-box" id="mwBox1"></div>
     <div class="list-actions">
       <button class="btn" id="startShoppingBtn"></button>
     </div>
@@ -473,6 +502,7 @@
       <div class="mini-note-title" id="miniNoteTitle"></div>
       <ul class="item-list" id="shoppingItemsList2"></ul>
     </div>
+    <details class="mw-box mw-fold" id="mwBox2"></details>
     <div class="instruction" id="instructionText"></div>
     <div class="example" id="exampleText"></div>
     <div class="mic-zone">
@@ -542,6 +572,7 @@
       <button class="btn btn-outline" id="viewLeaderboardBtn"></button>
       <button class="btn btn-gold" id="playAgainBtn"></button>
     </div>
+    <button class="btn btn-outline home-wide" id="resultHomeBtn"></button>
   </div>
 
   <!-- LEADERBOARD -->
@@ -554,6 +585,7 @@
       <button class="btn btn-outline" id="lbBackBtn"></button>
       <button class="btn btn-gold" id="lbPlayAgainBtn"></button>
     </div>
+    <button class="btn btn-outline home-wide" id="lbHomeBtn"></button>
   </div>
 
 </div>
@@ -605,6 +637,12 @@ function readSettings(){
 }
 const Settings = readSettings();
 const saveSettings = () => writeSettings(Settings);
+/* 字體大小（只有這個遊戲用，不影響其他遊戲）：標準／大／特大，預設「大」，會記住 */
+const FS_KEY = 'irdecompras.fontSize';
+const FS_VAL = { std:1, lg:1.15, xl:1.3 };
+let FontSize = (() => { try{ const v = localStorage.getItem(FS_KEY); if(FS_VAL[v]) return v; }catch(e){} return 'lg'; })();
+const applyFontSize = () => document.documentElement.style.setProperty('--fs', FS_VAL[FontSize]);
+applyFontSize();
 const showPh = () => Settings.phon !== 'off';                  // 要不要顯示拼音／注音
 const X = (es, en) => Settings.lang === 'en' ? en : es;      // 依語言選西文或英文（只有中文時小字整行隱藏）
 const SIMP = () => Settings.script === 'simp';
@@ -700,7 +738,6 @@ const ruby = str => tokensFor(str).join('');
 ══════════════════════════════════════ */
 const UI = {
   title:      ['幫媽媽買東西', 'Ir de compras', 'Shopping for Mom'],
-  brand:      ['每天一分鐘', '', ''],
   nameLabel:  ['你的名字', 'Tu nombre', 'Your name'],
   start:      ['開始遊戲', 'Empezar', 'Start'],
   flavor:     ['媽媽今天有點忙，要你去超市幫她買東西！',
@@ -713,6 +750,7 @@ const UI = {
   sticky:     ['媽媽的購物清單', 'Lista de compras de mamá', "Mom's shopping list"],
   startShop:  ['開始購買', 'Empezar a comprar', 'Start shopping'],
   miniTitle:  ['還沒買的東西', 'Lo que falta por comprar', 'Still to buy'],
+  mwTitle:    ['這張清單用到的量詞', 'Clasificadores de esta lista', 'Measure words on this list'],
   instr:      ['請說出物品、數量和量詞', 'Di el producto, la cantidad y el clasificador', 'Say the item, quantity and measure word'],
   example:    ['例如：', 'Por ejemplo:', 'For example:'],
   typePh:     ['也可以直接打字輸入…', 'O escribe aquí…', 'Or type here…'],
@@ -757,6 +795,8 @@ const UI = {
                'Aún no está conectada la base de datos en la nube; se muestra una clasificación de prueba local (se borra al recargar).',
                'The cloud database is not connected yet; showing a local demo board (cleared on reload).'],
   restart:    ['↻ 重新開始', '', ''],
+  home:       ['🏠 回首頁', 'Inicio', 'Home'],
+  skip:       ['跳過 ▶', 'Saltar', 'Skip'],
   mic_ready:  ['按住麥克風說話', 'Mantén pulsado el micrófono para hablar', 'Hold the microphone to speak'],
   mic_listen: ['聆聽中…放開結束', 'Escuchando… suelta para terminar', 'Listening… release to finish'],
   mic_nospeech:['沒聽到聲音，請再按一次麥克風試試', 'No escuché nada. Inténtalo otra vez.', "Didn't hear anything. Try again."],
@@ -900,6 +940,36 @@ const MEASURE_ASR_ALIASES = {
   块:['快'],
 };
 
+/* 每個量詞的說明：py 拼音、zh 用在什麼東西上（繁體）、es 西文、en 英文。鍵用簡體量詞，和 ITEMS 的 m 一樣 */
+const MEASURE_INFO = {
+  '瓶':{py:'píng', zh:'裝在瓶子裡的東西（牛奶、果汁、油）',
+        es:'botella — cosas que se venden en botella (leche, jugo, aceite)', en:'bottle — things sold in bottles (milk, juice, oil)'},
+  '颗':{py:'kē', zh:'小小圓圓的東西（蘋果、雞蛋、番茄）',
+        es:'pieza — cosas pequeñas y redondeadas (manzanas, huevos, tomates)', en:'piece — small, roundish things (apples, eggs, tomatoes)'},
+  '条':{py:'tiáo', zh:'又長又細的東西（魚、牙膏、麵包）',
+        es:'cosas largas y delgadas (pescado, tubo de pasta de dientes, barra de pan)', en:'long, thin things (fish, a tube of toothpaste, a loaf of bread)'},
+  '根':{py:'gēn', zh:'細細長長、像棍子的東西（香蕉、胡蘿蔔、玉米）',
+        es:'cosas largas como un palo (plátanos, zanahorias, maíz)', en:'long, stick-like things (bananas, carrots, corn)'},
+  '包':{py:'bāo', zh:'用袋子或包裝包起來的東西（米、鹽、糖、泡麵）',
+        es:'paquete / bolsa — productos envasados (arroz, sal, azúcar, fideos)', en:'pack / bag — packaged goods (rice, salt, sugar, noodles)'},
+  '把':{py:'bǎ', zh:'可以用一隻手抓起來的一把（青菜）',
+        es:'manojo — lo que se agarra con una mano (verduras de hoja)', en:'a bunch — what you can grab in one hand (leafy greens)'},
+  '盒':{py:'hé', zh:'裝在盒子裡的東西（豆腐、巧克力、草莓）',
+        es:'caja — cosas que vienen en caja (tofu, chocolates, fresas)', en:'box — things sold in boxes (tofu, chocolates, strawberries)'},
+  '份':{py:'fèn', zh:'一份一份分好的食物（雞肉、豬肉、牛肉）',
+        es:'porción — comida ya dividida en porciones (pollo, cerdo, res)', en:'portion — food divided into servings (chicken, pork, beef)'},
+  '斤':{py:'jīn', zh:'重量單位，台灣一斤是 600 公克（蝦子）',
+        es:'jin — unidad de peso; en Taiwán 1 jin = 600 g (camarones)', en:'jin — a weight unit; in Taiwan 1 jin = 600 g (shrimp)'},
+  '块':{py:'kuài', zh:'一塊一塊的東西（肥皂）',
+        es:'pieza / pastilla — cosas en bloque (jabón)', en:'piece / bar — block-shaped things (soap)'},
+  '支':{py:'zhī', zh:'細長、有握把的東西（牙刷）',
+        es:'objetos alargados con mango (cepillo de dientes)', en:'slender objects with a handle (toothbrush)'},
+  '罐':{py:'guàn', zh:'裝在罐子或罐頭裡的東西（咖啡、果醬）',
+        es:'lata / frasco — cosas en lata o frasco (café, mermelada)', en:'can / jar — things in a can or jar (coffee, jam)'},
+  '串':{py:'chuàn', zh:'一串一串連在一起的東西（葡萄）',
+        es:'racimo — cosas unidas en un tallo (uvas)', en:'a bunch on a stem (grapes)'}
+};
+
 /* ══════════════════════════════════════
    數量／量詞／物品的顯示（依繁簡、看拼音）
 ══════════════════════════════════════ */
@@ -949,6 +1019,7 @@ let currentChangeScenario = null, changeShown = false;
 let resultInfo = null;   // 結果頁資料
 let lbRows = null, lbOpen = false;
 let currentScreen = 'screen-start';
+let gameToken = 0;       // 每次回首頁／重新開始就加一，用來讓舊的延遲動作失效
 
 function showScreen(id){
   currentScreen = id;
@@ -968,7 +1039,7 @@ function renderStatic(){
   const set = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
   set('startTitle', uZh('title'));
   set('startSubtitle', esc(X(UI.title[1], UI.title[2])));
-  set('startBrand', esc(Z(UI.brand[0])));
+  drawStartSettings();
   set('fieldLabel', ONLYZH() ? uZh('nameLabel') : `${uZh('nameLabel')} / ${uTr('nameLabel')}`);
   $('nameInput').placeholder = Z('例：María、小明');
   set('startBtn', bt('start'));
@@ -1005,6 +1076,10 @@ function renderStatic(){
   set('lbBackBtn', bt('back'));
   set('lbPlayAgainBtn', bt('again'));
   set('btnRestart', esc(Z(UI.restart[0])));
+  set('btnHome', esc(Z(UI.home[0])));
+  set('skipIntroBtn', bt('skip'));
+  set('resultHomeBtn', bt('home'));
+  set('lbHomeBtn', bt('home'));
   $('playerBadge').textContent = playerName;
 }
 function renderMic(){ $('micStatus').innerHTML = bi(micKey); }
@@ -1034,6 +1109,23 @@ function liHTML(e, withStrike, idx){
 }
 function renderShoppingList(){ $('shoppingItemsList').innerHTML = shoppingList.map(e => liHTML(e, false)).join(''); }
 function renderShoppingList2(){ $('shoppingItemsList2').innerHTML = shoppingList.map((e, i) => liHTML(e, true, i)).join(''); }
+/* 清單下方：這張清單用到的量詞，各自是「用在什麼東西上」 */
+function measureNotesHTML(){
+  const seen = [];
+  shoppingList.forEach(e => { if(!seen.includes(e.item.m)) seen.push(e.item.m); });
+  return seen.map(m => {
+    const info = MEASURE_INFO[m]; if(!info) return '';
+    const ch = SIMP() ? m : (MEASURE_TRAD[m] || m);
+    const head = showPh() ? `<ruby>${esc(ch)}<rt>${phInner(info.py)}</rt></ruby>` : esc(ch);
+    return `<div class="mw-row"><span class="mw-head">${head}</span>`
+         + `<span class="mw-body"><span class="zh">${ruby(info.zh)}</span><span class="tr">${esc(X(info.es, info.en))}</span></span></div>`;
+  }).join('');
+}
+function renderMeasureNotes(){
+  const rows = measureNotesHTML();
+  $('mwBox1').innerHTML = `<div class="mw-title">${bi('mwTitle')}</div>${rows}`;
+  $('mwBox2').innerHTML = `<summary class="mw-title">${bi('mwTitle')}</summary>${rows}`;
+}
 
 function renderCheckout(){
   if(!checkoutBuilt) return;
@@ -1084,7 +1176,7 @@ function renderLeaderboard(){
 function renderAll(){
   renderStatic();
   renderMic();
-  if(shoppingList.length){ renderShoppingList(); renderShoppingList2(); }
+  if(shoppingList.length){ renderShoppingList(); renderShoppingList2(); renderMeasureNotes(); }
   renderFeedback();
   renderCheckout();
   if(changeShown) renderChangeScreen();
@@ -1216,7 +1308,8 @@ startBtn.addEventListener('click', ()=>{
    ⚙️ 設定視窗
 ══════════════════════════════════════ */
 const SET_TXT = {
-  settings:['設定','Ajustes','Settings'], script:['字體','Caracteres','Characters'], lang:['語言','Idioma','Language'],
+  settings:['設定','Ajustes','Settings'], script:['繁體／簡體','Caracteres','Characters'], lang:['語言','Idioma','Language'],
+  fs:['字體大小','Tamaño de letra','Text size'], fsStd:['標準','Normal','Standard'], fsLg:['大','Grande','Large'], fsXl:['特大','Muy grande','Extra large'],
   phon:['拼音／注音','Pinyin / Zhuyin','Pinyin / Zhuyin'], rate:['語速','Velocidad de voz','Voice speed'],
   pinyin:['拼音','Pinyin','Pinyin'], zhuyin:['注音','Zhuyin','Zhuyin'], both:['兩者','Ambos','Both'], off:['關閉','Ninguno','Off'],
   slow:['慢','Lento','Slow'], normal:['正常','Normal','Normal'], fast:['快','Rápido','Fast'],
@@ -1234,6 +1327,8 @@ function drawSet(){
       ${setOpt('繁體', Settings.script==='trad', 'script', 'trad')}${setOpt('简体', Settings.script==='simp', 'script', 'simp')}</div></div>
     <div class="setGroup"><h3>${stx('lang','h')}</h3><div class="opts">
       ${setOpt('中文＋<small>Español</small>', Settings.lang==='es', 'lang', 'es')}${setOpt('中文＋<small>English</small>', Settings.lang==='en', 'lang', 'en')}${setOpt(esc(Z(SET_TXT.zhOnly[0])), Settings.lang==='zh', 'lang', 'zh')}</div></div>
+    <div class="setGroup"><h3>${stx('fs','h')}</h3><div class="opts">
+      ${setOpt(stx('fsStd'), FontSize==='std', 'fs', 'std')}${setOpt(stx('fsLg'), FontSize==='lg', 'fs', 'lg')}${setOpt(stx('fsXl'), FontSize==='xl', 'fs', 'xl')}</div></div>
     <div class="setGroup"><h3>${stx('phon','h')}</h3><div class="opts two">
       ${setOpt(stx('pinyin'), Settings.phon==='pinyin', 'phon', 'pinyin')}${setOpt(stx('zhuyin'), Settings.phon==='zhuyin', 'phon', 'zhuyin')}${setOpt(stx('both'), Settings.phon==='both', 'phon', 'both')}${setOpt(stx('off'), Settings.phon==='off', 'phon', 'off')}</div></div>
     <div class="setGroup"><h3>${stx('rate','h')}</h3><div class="opts">
@@ -1245,12 +1340,32 @@ function drawSet(){
 function openSet(){ drawSet(); $('setov').classList.remove('hide'); }
 function closeSet(){ $('setov').classList.add('hide'); }
 function setS(k, v){
+  if(k === 'fs'){
+    if(!FS_VAL[v]) return;
+    FontSize = v; try{ localStorage.setItem(FS_KEY, v); }catch(e){}
+    applyFontSize(); drawSet(); return;
+  }
   if(!SET_OPTS[k] || !SET_OPTS[k].includes(v)) return;
   Settings[k] = v; saveSettings();
-  const after = () => { drawSet(); renderAll(); if(k === 'rate') speak('兩瓶牛奶'); };   // 改語速時試聽一下
+  const after = () => { drawSet(); renderAll(); };   // 改語速時不再播放試聽聲音
   if(k === 'script' && v === 'simp' && !_t2s) loadT2S().then(after); else after();
 }
-$('gateGear').addEventListener('click', openSet);
+/* 開始畫面名字欄下面的設定：字體、語言，另有「更多設定」打開完整設定 */
+function drawStartSettings(){
+  const el = $('startSettings'); if(!el) return;
+  const grp = (k, opts) => `<div class="ss-group"><div class="ss-label">${stx(k,'h')}</div><div class="opts">${opts}</div></div>`;
+  el.innerHTML =
+    grp('script', setOpt('繁體', Settings.script==='trad', 'script', 'trad') + setOpt('简体', Settings.script==='simp', 'script', 'simp'))
+  + grp('lang', setOpt('中文＋<small>Español</small>', Settings.lang==='es', 'lang', 'es')
+              + setOpt('中文＋<small>English</small>', Settings.lang==='en', 'lang', 'en')
+              + setOpt(esc(Z(SET_TXT.zhOnly[0])), Settings.lang==='zh', 'lang', 'zh'))
+  + `<button type="button" class="ss-more" id="startMore">⚙️ ${esc(Z('更多設定'))}${ONLYZH() ? '' : ' · ' + esc(X('Más ajustes', 'More settings'))}</button>`;
+}
+$('startSettings').addEventListener('click', e => {
+  const b = e.target.closest('.opt');
+  if(b){ setS(b.dataset.k, b.dataset.v); return; }
+  if(e.target.closest('#startMore')) openSet();
+});
 $('gameGear').addEventListener('click', openSet);
 $('setov').addEventListener('click', e => { if(e.target.id === 'setov') closeSet(); });
 // 別的分頁（例如色數）改了共用設定 → 這裡跟著更新
@@ -1271,6 +1386,7 @@ function renderIntro(){
   $('dialogueText').innerHTML = tk.slice(0, introIdx).join('');
   $('dialogueTr').innerHTML = introDone ? esc(X(UI.introTr[1], UI.introTr[2])) : '';
   $('confirmBtn').style.display = introDone ? 'inline-block' : 'none';
+  $('skipIntroBtn').style.display = introDone ? 'none' : 'inline-block';   // 打字中就能跳過；打完換成「確認」
 }
 function runIntro(){
   clearInterval(introTimer);
@@ -1285,11 +1401,14 @@ function runIntro(){
     renderIntro();
   }, interval);
 }
-$('confirmBtn').addEventListener('click', ()=>{
+function leaveIntro(){
   clearInterval(introTimer);
+  stopSpeak();                       // 跳過或按確認時，朗讀一起停掉
   buildShoppingList();
   showScreen('screen-list');
-});
+}
+$('confirmBtn').addEventListener('click', leaveIntro);
+$('skipIntroBtn').addEventListener('click', leaveIntro);
 
 /* ══════════════════════════════════════
    SHOPPING LIST GENERATION
@@ -1310,6 +1429,7 @@ function buildShoppingList(){
   checkoutBuilt = false; changeShown = false; resultInfo = null;
   renderShoppingList();
   renderShoppingList2();
+  renderMeasureNotes();
 }
 let shoppingTimerInterval = null;
 function updateShoppingTimerDisplay(){
@@ -1375,15 +1495,62 @@ function nameInText(clean, item){
   }
   return true;
 }
+/* ---- 拼音寬鬆比對 ----
+   語音辨識常把同音字聽成別的字（也分不清台灣口音的 -n／-ng）。
+   所以字對不上時，改把「句子」和「答案」都轉成「拼音＋聲調」再比：
+   ・聲調一定要一樣（根 gēn 和 更 gèng 聲調不同，不會算對）
+   ・an＝ang、en＝eng、in＝ing 視為一樣（台灣口音常見）
+   ・字完全一樣的，照舊直接算對 */
+function pySyl(s){
+  const m = String(s).match(/^((?:zh|ch|sh|[bpmfdtnlgkhjqxrzcsyw])?)(an|ang|en|eng|in|ing)([1-5]?)$/);
+  return m ? m[1] + m[2].replace(/g$/, '') + m[3] : String(s);
+}
+const pyCache = new Map();
+function pySeq(str){
+  if(!PINYIN_OK) return [];
+  str = String(str);
+  if(pyCache.has(str)) return pyCache.get(str);
+  let arr = [];
+  try{ arr = pinyinPro.pinyin(str, { toneType:'num', type:'array', v:true, toneSandhi:false }).map(pySyl); }catch(e){}
+  if(pyCache.size > 300) pyCache.clear();
+  pyCache.set(str, arr);
+  return arr;
+}
+function hasSeq(hay, need){
+  if(!need.length || need.length > hay.length) return false;
+  for(let i = 0; i <= hay.length - need.length; i++){
+    let ok = true;
+    for(let j = 0; j < need.length; j++){ if(hay[i+j] !== need[j]){ ok = false; break; } }
+    if(ok) return true;
+  }
+  return false;
+}
+function nameInTextFuzzy(clean, item){
+  if(nameInText(clean, item)) return true;                       // 字完全一樣
+  if(!PINYIN_OK) return false;
+  for(const o of ITEMS){ if(o !== item && nameInText(clean, o)) return false; }   // 明明說了別的東西
+  const hay = pySeq(clean), need = pySeq(item.t.join(''));
+  if(!hasSeq(hay, need)) return false;
+  for(const o of ITEMS){                                         // 更長的名字（例如「玉米」）也對得上時，不算「米」
+    if(o === item) continue;
+    const on = pySeq(o.t.join(''));
+    if(on.length > need.length && hasSeq(on, need) && hasSeq(hay, on)) return false;
+  }
+  return true;
+}
+function measureFuzzy(clean, m){
+  if(!PINYIN_OK) return false;
+  return hasSeq(pySeq(clean), pySeq(MEASURE_TRAD[m] || m));
+}
 function matchAnswer(text, entry){
   // strip whitespace/punctuation; also strip spaces the recognizer sometimes inserts between every syllable
   const clean = text.replace(/[\s,，。!！、\.\?？]/g,'');
   const item = entry.item;
-  if(!nameInText(clean, item)) return {ok:false, nameMatched:false};
+  if(!nameInTextFuzzy(clean, item)) return {ok:false, nameMatched:false};
 
   const measureTrad = MEASURE_TRAD[item.m] || item.m;
   const aliases = MEASURE_ASR_ALIASES[item.m] || [];
-  const properMeasure = clean.includes(item.m) || clean.includes(measureTrad) || aliases.some(a=>clean.includes(a));
+  const properMeasure = clean.includes(item.m) || clean.includes(measureTrad) || aliases.some(a=>clean.includes(a)) || measureFuzzy(clean, item.m);
   const genericMeasure = clean.includes('个') || clean.includes('個');
   if(!properMeasure && !genericMeasure) return {ok:false, nameMatched:true, reason:'measure'};
 
@@ -1688,11 +1855,13 @@ $('payBtn').addEventListener('click', ()=>{
   if(change === 0){
     score += 25;
     setCheckoutMsg(()=>msg(ruby('剛剛好！付款成功！'), X('¡Justo! Pago exitoso.', 'Exact amount! Payment complete.')), true);
-    setTimeout(showResult, 1000);
+    const tk = gameToken;
+    setTimeout(()=>{ if(tk === gameToken) showResult(); }, 1000);
   } else {
     setCheckoutMsg(()=>msg(`${ruby('付款成功！老闆準備找你')} NT$ ${change} ${ruby('元…')}`,
       X(`¡Pago exitoso! El dueño te dará NT$ ${change} de cambio…`, `Paid! The shopkeeper will give you NT$ ${change} in change…`)), true);
-    setTimeout(()=>{ showChangeScreen(change); }, 900);
+    const tk = gameToken;
+    setTimeout(()=>{ if(tk === gameToken) showChangeScreen(change); }, 900);
   }
 });
 
@@ -1813,12 +1982,39 @@ function restartGame(skipConfirm){
   if(!skipConfirm && !ask('確定要重新開始嗎？這一局的分數不會保留。',
       '¿Seguro que quieres empezar de nuevo? Perderás el puntaje de esta partida.',
       'Start over? Your score for this round will be lost.')) return;
+  gameToken++;                                   // 讓還沒跑完的延遲動作（付款後跳畫面）失效
   clearInterval(introTimer); stopShoppingTimer(); stopSpeak();
   if(recognition && listening){ try{ recognition.stop(); }catch(e){} }
   paymentDone = false; resultShown = false; lbOpen = false; shoppingEndTime = 0;
   feedbackFn = null; checkoutMsgFn = null; changeMsgFn = null;
   playAgain();
 }
+
+/* ══════════════════════════════════════
+   回首頁：回到開始畫面（名字會留在輸入框，可直接再開始或改名）。
+   遊戲進行中會先確認；結果頁、排行榜頁已經結束，不用確認。
+══════════════════════════════════════ */
+function goHome(){
+  const inGame = ['screen-intro','screen-list','screen-shopping','screen-checkout','screen-change'].includes(currentScreen);
+  if(inGame && !ask('要回到首頁嗎？這一局的分數不會保留。',
+      '¿Volver al inicio? Perderás el puntaje de esta partida.',
+      'Go back to the start page? Your score for this round will be lost.')) return;
+  gameToken++;
+  clearInterval(introTimer); stopShoppingTimer(); stopSpeak();
+  if(recognition && listening){ try{ recognition.stop(); }catch(e){} }
+  closeSet();
+  score = 0; shoppingList = []; paymentDone = false; resultShown = false; lbOpen = false; shoppingEndTime = 0;
+  checkoutBuilt = false; changeShown = false; currentChangeScenario = null; resultInfo = null; lbRows = null;
+  feedbackFn = null; checkoutMsgFn = null; changeMsgFn = null;
+  $('textFallback').value = '';
+  micKey = SR ? 'mic_ready' : 'mic_unsupported';
+  startBtn.disabled = nameInput.value.trim().length === 0;
+  showScreen('screen-start');
+  renderAll();
+}
+$('btnHome').addEventListener('click', goHome);
+$('resultHomeBtn').addEventListener('click', goHome);
+$('lbHomeBtn').addEventListener('click', goHome);
 
 /* ══════════════════════════════════════
    開機：套用設定、畫出所有文字
