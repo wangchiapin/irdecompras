@@ -696,7 +696,7 @@
 
 </div>
 
-<!-- Firebase (compat SDK) — 排行榜（前 15 名，每人只留最高分）。
+<!-- Firebase (compat SDK) — 排行榜（前 10 名，每人只留最高分）。
      連到 memorma-24dab 專案（匿名登入，每台裝置一筆）。連不上時遊戲照常可玩，排行榜改顯示本機示範資料。 -->
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.1/firebase-firestore-compat.js"></script>
@@ -893,7 +893,7 @@ const UI = {
   board:      ['排行榜', 'Clasificación', 'Leaderboard'],
   again:      ['再玩一次', 'Jugar otra vez', 'Play again'],
   lbTitle:    ['購物達人排行榜', 'Clasificación de compradores', 'Shopping leaderboard'],
-  lbSub:      ['前十五名', 'Los 15 mejores', 'Top 15'],
+  lbSub:      ['前十名', 'Los 10 mejores', 'Top 10'],
   back:       ['返回', 'Volver', 'Back'],
   loading:    ['載入中…', 'Cargando…', 'Loading…'],
   lbEmpty:    ['還沒有人上榜，快來當第一名！', 'Aún no hay nadie. ¡Sé el primero!', 'No one yet. Be the first!'],
@@ -1406,7 +1406,7 @@ function renderAll(){
 }
 
 /* ══════════════════════════════════════
-   LEADERBOARD (Firebase Firestore) — 前 15 名，同一個名字只留最高分
+   LEADERBOARD (Firebase Firestore) — 前 10 名，同一個名字只留最高分
 ══════════════════════════════════════ */
 /* --- 連到 memorma-24dab 專案（和翻牌記憶、收納小達人共用）--- */
 const FIREBASE_CONFIG = {
@@ -1418,7 +1418,7 @@ const FIREBASE_CONFIG = {
   appId: "1:806709458465:web:f0d12acb2f911f2f165560"
 };
 const LEADERBOARD_COLLECTION = "mama_shopping_leaderboard";
-const LEADERBOARD_SIZE = 15;
+const LEADERBOARD_SIZE = 10;
 
 let db = null;
 let firebaseReady = false;
@@ -1496,7 +1496,7 @@ let ttsVoice = null;
 function pickVoice(){
   try{
     const voices = speechSynthesis.getVoices();
-    ttsVoice = voices.find(v=>v.lang==='zh-TW') || voices.find(v=>v.lang && v.lang.startsWith('zh')) || null;
+    ttsVoice = voices.find(v=>v.lang==='zh-TW') || voices.find(v=>v.lang && v.lang.startsWith('zh') && !/^(yue|zh[-_]hk)/i.test(v.lang))   /* 排除廣東話 */ || null;
   }catch(e){}
 }
 try{ speechSynthesis.onvoiceschanged = pickVoice; }catch(e){}
