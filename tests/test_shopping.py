@@ -164,6 +164,7 @@ with sync_playwright() as p:
     R.check(pg.evaluate("walletPieces.reduce((s,x)=>s+x.denom,0)") > total, '皮包總額大於應付金額')
     pg.click('#payBtn'); pg.wait_for_timeout(200)
     R.check('金額不足' in pg.inner_text('#checkoutMsg') and scr(pg) == 'screen-checkout', '一毛都沒拿就付錢：提示金額不足，不離開')
+    R.check(pg.evaluate("document.querySelector('#screen-checkout .dock').getBoundingClientRect().height") < 230, '付錢畫面底部區塊（含金額不足提示）高度 < 230：%d' % pg.evaluate("document.querySelector('#screen-checkout .dock').getBoundingClientRect().height"))
     # 湊出剛剛好
     ids = pg.evaluate("""()=>{ const t=TOTAL_PRICE, w=walletPieces; // 動態規劃找剛好的組合
       const best={0:[]}; for(const p of w){ for(const s of Object.keys(best).map(Number).sort((a,b)=>b-a)){ const n=s+p.denom; if(n<=t && !(n in best)) best[n]=best[s].concat(p.id); } }
@@ -179,6 +180,9 @@ with sync_playwright() as p:
     pg.evaluate("document.getElementById('payBtn').disabled=false; document.getElementById('payBtn').click()"); R.check(score(pg) == s0 + 25, '強行再按付錢也只算一次')
     pg.wait_for_timeout(1300)
     R.check(scr(pg) == 'screen-result', '剛好付款後 1 秒進入結果頁')
+    pg.set_viewport_size({'width': 393, 'height': 660}); pg.wait_for_timeout(200)
+    R.check(not pg.is_visible('#resultHomeBtn'), '結果頁不再放大顆回首頁（上方列有）')
+    R.check(pg.evaluate("document.documentElement.scrollHeight - innerHeight") <= 1, '結果頁在 393×660 不用上下滑：多出 %d px' % pg.evaluate("document.documentElement.scrollHeight - innerHeight"))
     info = pg.evaluate("resultInfo")
     full = pg.evaluate("maxScore")
     R.check(info['finalScore'] == min(100, round(pg.evaluate("score") / full * 100)), f'結果分數＝得分/滿分×100：{info["finalScore"]}')
@@ -327,7 +331,7 @@ with sync_playwright() as p:
     pg.click('#setDone'); pg.wait_for_timeout(100)
     R.check(not pg.is_visible('#setov .ovCard'), '按完成：設定視窗關閉')
     pg.click('#startHelp'); pg.wait_for_timeout(150)
-    R.check(pg.is_visible('#helpov .ovCard') and pg.locator('#helpov li').count() == 4, '點 ❓：跳出遊戲說明（4 點）')
+    R.check(pg.is_visible('#helpov .ovCard') and pg.locator('#helpov li').count() == 5, '點 ❓：跳出遊戲說明（5 點，含麥克風用法）')
     R.check('How to play' in pg.inner_text('#helpov'), '遊戲說明跟著語言（English）')
     pg.click('#helpDone'); pg.wait_for_timeout(100)
     R.check(not pg.is_visible('#helpov .ovCard'), '按完成：說明視窗關閉')
