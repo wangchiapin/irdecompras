@@ -112,7 +112,10 @@ html{color-scheme:light}
   .opt small{display:block;font-size:10.5px;opacity:.8;}
   .opts.two .opt{flex:1 1 40%;}
   .opt.on{background:var(--gold);border-color:var(--gold);color:#2E241C;font-weight:700;}
-  #setDone{margin-top:6px;width:100%;}
+  #setDone,#helpDone{margin-top:6px;width:100%;}
+  .helpList{margin:6px 0 10px;padding-left:22px;text-align:left;font-size:15px;line-height:1.7;}
+  .helpList li{margin-bottom:10px;}
+  .helpList .tr{font-size:12.5px;}
   /* 選「只有中文」時不顯示小字翻譯 */
   html[data-lang="zh"] .tr, html[data-lang="zh"] .btn .sub, html[data-lang="zh"] #startSubtitle{display:none;}
   /* 拼音＋注音兩者並列 */
@@ -149,20 +152,12 @@ html{color-scheme:light}
     margin:6px 0 4px;
     color:#FBF3DD;
   }
-  .subtitle{font-size:15px;color:var(--gold-soft);letter-spacing:1px;margin-bottom:28px;}
+  .subtitle{font-size:15px;color:var(--gold-soft);letter-spacing:1px;margin-bottom:18px;}
   .field-label{font-size:15px;margin-bottom:10px;color:var(--paper2);}
-  /* 開始畫面：名字欄下面直接放設定（字體、語言、更多設定） */
-  .start-settings{margin-top:16px;text-align:left;}
-  .ss-group{margin-bottom:10px;}
-  .ss-label{font-size:13px;color:var(--gold-soft);margin:0 0 5px 2px;}
-  .ss-label small{font-size:11px;font-weight:400;opacity:.85;}
-  .ss-label small::before{content:" · ";}
-  .start-settings .opt{background:rgba(251,243,221,.10);border-color:var(--gold-soft);color:var(--paper2);}
-  .start-settings .opt.on{background:var(--gold);border-color:var(--gold);color:#2E241C;}
-  .ss-more{
-    display:block;margin:4px auto 0;background:transparent;border:none;color:var(--gold-soft);
-    font-family:var(--sans);font-size:13px;padding:6px 10px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;
-  }
+  /* 右上角的 ❓說明／⚙️設定（開始畫面用；遊戲中放在上方列右邊） */
+  .corner-btns{position:absolute;top:12px;right:12px;display:flex;gap:8px;z-index:50;}
+  body.has-bar .corner-btns{display:none;}
+  #screen-start{padding-top:64px;}
   #nameInput{
     width:100%;
     padding:14px 16px;
@@ -183,7 +178,7 @@ html{color-scheme:light}
     cursor:pointer;font-family:var(--sans);
   }
   .seg button[aria-pressed="true"]{background:var(--gold);color:#2E241C;font-weight:700;}
-  .flavor-text{margin:22px 0 0;font-size:14px;line-height:1.8;color:var(--paper2);}
+  .flavor-text{margin:0 0 22px;font-size:14px;line-height:1.8;color:var(--paper2);}
   .flavor-text .zh{font-size:15px;}
   .btn{
     font-family:var(--sans);
@@ -207,7 +202,10 @@ html{color-scheme:light}
   .btn-gold:active{box-shadow:0 2px 0 #8f6e17;}
   .btn-outline{background:transparent;border:2px solid var(--gold);box-shadow:none;color:var(--brick-dark);}
   .btn-outline rt{color:var(--ink-soft);}
-  #startBtn{margin-top:26px;width:100%;}
+  /* 開始按鈕：矮一點（上下內距和下方立體陰影都縮小） */
+  #startBtn{margin-top:20px;width:100%;padding:7px 20px;box-shadow:0 3px 0 var(--brick-dark);}
+  #startBtn:active{transform:translateY(2px);box-shadow:0 1px 0 var(--brick-dark);}
+  #startBtn:disabled{box-shadow:0 3px 0 #635a4d;}
 
   /* ---------- DIALOGUE / INTRO ---------- */
   #screen-intro{justify-content:space-between;}
@@ -480,7 +478,7 @@ html{color-scheme:light}
   }
   @media (max-width:899px){
     .more{display:flex;}
-    .more-menu{display:none;position:absolute;top:46px;left:58px;z-index:60;flex-direction:column;gap:8px;
+    .more-menu{display:none;position:absolute;top:46px;left:12px;z-index:60;flex-direction:column;gap:8px;
       background:var(--paper2);border:1.5px solid var(--gold);border-radius:12px;padding:10px;box-shadow:var(--shadow);}
     body.menu-open .more-menu{display:flex;}
     .more{font-size:18px;line-height:1;padding:6px 14px;}
@@ -532,17 +530,25 @@ html{color-scheme:light}
 </head>
 <body>
 <div id="setov" class="ov hide"></div>
+<div id="helpov" class="ov hide"></div>
 <div id="app">
 
-  <!-- 上方列：看拼音／重新開始／玩家名字（開始畫面不顯示） -->
+  <!-- 開始畫面右上角：說明／設定 -->
+  <div class="corner-btns" id="cornerBtns">
+    <button type="button" class="gear" id="startHelp" aria-label="❓">❓</button>
+    <button type="button" class="gear" id="startGear" aria-label="⚙️">⚙️</button>
+  </div>
+
+  <!-- 上方列：回首頁／重新開始／玩家名字／說明／設定（開始畫面不顯示） -->
   <div class="top-bar" id="topBar">
-    <button type="button" class="gear" id="gameGear" aria-label="⚙️">⚙️</button>
     <button type="button" class="btn-pinyin more" id="moreBtn" aria-label="menu">⋯</button>
     <div class="more-menu" id="moreMenu">
       <button class="btn-pinyin restart" id="btnHome"></button>
       <button class="btn-pinyin restart" id="btnRestart"></button>
     </div>
     <span class="chip" id="playerBadge"></span>
+    <button type="button" class="gear" id="gameHelp" aria-label="❓">❓</button>
+    <button type="button" class="gear" id="gameGear" aria-label="⚙️">⚙️</button>
   </div>
 
   <!-- START SCREEN -->
@@ -550,11 +556,10 @@ html{color-scheme:light}
     <div class="market-icon">🛒</div>
     <div class="title-main" id="startTitle"></div>
     <div class="subtitle" id="startSubtitle"></div>
+    <p class="flavor-text" id="flavorText"></p>
     <div class="field-label" id="fieldLabel"></div>
     <input id="nameInput" type="text" maxlength="12" autocomplete="off">
-    <div class="start-settings" id="startSettings"></div>
     <button class="btn" id="startBtn" disabled></button>
-    <p class="flavor-text" id="flavorText"></p>
   </div>
 
   <!-- INTRO / DIALOGUE -->
@@ -906,6 +911,19 @@ const UI = {
                'Mom is a bit busy today and asks you to go shopping at the supermarket for her.'],
   introTr:    ['', 'Hoy mamá está un poco ocupada, así que irás a ayudarla con las compras. Aquí tienes una lista de compras…',
                    'Mom is a bit busy today, so you will help her with the shopping. Here is a shopping list…'],
+  helpTitle:  ['遊戲說明', 'Cómo se juega', 'How to play'],
+  help1:      ['看購物清單，說出「數量＋量詞＋物品」，例如「一瓶水」。',
+               'Mira la lista de compras y di «cantidad + clasificador + producto», por ejemplo «一瓶水».',
+               'Read the shopping list and say "quantity + measure word + item", for example "一瓶水".'],
+  help2:      ['買不到也沒關係，可以先去結帳，沒買到的東西不用付錢。',
+               'No pasa nada si no te sale: ve a pagar; lo que no compraste no se paga.',
+               "No worries if you can't: go to checkout; items you didn't buy are not charged."],
+  help3:      ['付錢時，從皮包拿錢放到櫃檯，再判斷老闆找的錢對不對。',
+               'Para pagar, toma dinero de tu cartera y ponlo en el mostrador; luego decide si el cambio del dueño es correcto.',
+               "To pay, take money from your wallet to the counter, then decide whether the shopkeeper's change is correct."],
+  help4:      ['買完會算分數，分數高就能進排行榜。',
+               'Al terminar se calcula tu puntaje; si es alto, entras en la clasificación.',
+               'When you finish you get a score; a high score gets you on the leaderboard.'],
   confirm:    ['確認', 'Confirmar', 'OK'],
   listHead:   ['購物清單來了！', '¡Llegó la lista de compras!', 'Here comes the shopping list!'],
   sticky:     ['媽媽的購物清單', 'Lista de compras de mamá', "Mom's shopping list"],
@@ -1305,7 +1323,7 @@ function renderStatic(){
   const set = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
   set('startTitle', uZh('title'));
   set('startSubtitle', esc(X(UI.title[1], UI.title[2])));
-  drawStartSettings();
+  if(!$('helpov').classList.contains('hide')) drawHelp();   // 說明視窗開著時，切換繁簡／語言／拼音也一起更新
   set('fieldLabel', ONLYZH() ? uZh('nameLabel') : `${uZh('nameLabel')} / ${uTr('nameLabel')}`);
   $('nameInput').placeholder = Z('例：María、小明');
   set('startBtn', bt('start'));
@@ -1630,24 +1648,24 @@ function setS(k, v){
   const after = () => { drawSet(); renderAll(); };   // 改語速時不再播放試聽聲音
   if(k === 'script' && v === 'simp' && !_t2s) loadT2S().then(after); else after();
 }
-/* 開始畫面名字欄下面的設定：字體、語言，另有「更多設定」打開完整設定 */
-function drawStartSettings(){
-  const el = $('startSettings'); if(!el) return;
-  const grp = (k, opts) => `<div class="ss-group"><div class="ss-label">${stx(k,'h')}</div><div class="opts">${opts}</div></div>`;
-  el.innerHTML =
-    grp('script', setOpt('繁體', Settings.script==='trad', 'script', 'trad') + setOpt('简体', Settings.script==='simp', 'script', 'simp'))
-  + grp('lang', setOpt('中文＋<small>Español</small>', Settings.lang==='es', 'lang', 'es')
-              + setOpt('中文＋<small>English</small>', Settings.lang==='en', 'lang', 'en')
-              + setOpt(esc(Z(SET_TXT.zhOnly[0])), Settings.lang==='zh', 'lang', 'zh'))
-  + `<button type="button" class="ss-more" id="startMore">⚙️ ${esc(Z('更多設定'))}${ONLYZH() ? '' : ' · ' + esc(X('Más ajustes', 'More settings'))}</button>`;
-}
-$('startSettings').addEventListener('click', e => {
-  const b = e.target.closest('.opt');
-  if(b){ setS(b.dataset.k, b.dataset.v); return; }
-  if(e.target.closest('#startMore')) openSet();
-});
-$('gameGear').addEventListener('click', openSet);
+/* 右上角：⚙️ 設定（繁簡、語言、拼音注音、語速全在裡面）、❓ 遊戲說明（開始畫面和遊戲中都一樣） */
+['startGear', 'gameGear'].forEach(id => $(id).addEventListener('click', openSet));
+['startHelp', 'gameHelp'].forEach(id => $(id).addEventListener('click', openHelp));
 $('setov').addEventListener('click', e => { if(e.target.id === 'setov') closeSet(); });
+
+/* ❓ 遊戲說明視窗 */
+function drawHelp(){
+  const o = $('helpov');
+  const items = ['help1', 'help2', 'help3', 'help4'].map(k => `<li>${bi(k)}</li>`).join('');
+  o.innerHTML = `<div class="ovCard helpCard">
+    <h2>❓ ${uZh('helpTitle')}${ONLYZH() ? '' : ' · ' + uTr('helpTitle')}</h2>
+    <ol class="helpList">${items}</ol>
+    <button type="button" class="btn btn-gold" id="helpDone">${esc(Z(SET_TXT.done[0]))}${ONLYZH() ? '' : '<small class="sub">' + esc(X(SET_TXT.done[1], SET_TXT.done[2])) + '</small>'}</button></div>`;
+  $('helpDone').addEventListener('click', closeHelp);
+}
+function openHelp(){ drawHelp(); $('helpov').classList.remove('hide'); }
+function closeHelp(){ $('helpov').classList.add('hide'); }
+$('helpov').addEventListener('click', e => { if(e.target.id === 'helpov') closeHelp(); });
 // 別的分頁（例如色數）改了共用設定 → 這裡跟著更新
 window.addEventListener('storage', e => {
   if(e.key !== SETTINGS_KEY) return;

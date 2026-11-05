@@ -278,7 +278,7 @@ with sync_playwright() as p:
     for lang in ('es', 'en', 'zh'):
         b, pg, errs = page(p, settings=dict(base, lang=lang))
         txt = pg.inner_text('#screen-start')
-        # 不看「語言」選項本身的按鈕字（那三顆永遠寫 Español／English），看標題、說明、按鈕
+        # 開始畫面已不放語言按鈕（都收進 ⚙️ 設定），直接看標題、說明、按鈕的字
         es_marks = ['Ir de compras', 'Tu nombre', 'Empezar', 'Mamá está']
         en_marks = ['Shopping', 'Your name', 'Start']
         has_es = any(m in txt for m in es_marks); has_en = any(m in txt for m in en_marks)
@@ -307,6 +307,47 @@ with sync_playwright() as p:
     b, pg, errs = open_page(p, extra_init="localStorage.setItem('irdecompras_settings', JSON.stringify({script:'simp', lang:'en'}));", wait=1200)
     st = json.loads(pg.evaluate("localStorage.getItem('hanziGames.settings')"))
     R.check(st['lang'] == 'en' and st['script'] in ('simp', 'trad'), '舊版自己的設定搬到共用設定：%s' % st)
+    b.close()
+
+    # ───── 5b) 開始畫面版面：⚙️設定／❓說明在右上角、語言收進設定、媽媽那段在標題下、開始鈕矮 ─────
+    b, pg, errs = page(p, settings=dict(base))
+    box = lambda sel: pg.evaluate("s=>{const r=document.querySelector(s).getBoundingClientRect();return {x:r.x,y:r.y,w:r.width,h:r.height}}", sel)
+    R.check(pg.is_visible('#startGear') and pg.is_visible('#startHelp'), '開始畫面：右上角有 ⚙️ 和 ❓')
+    g, h = box('#startGear'), box('#startHelp')
+    R.check(g['x'] > 390 * 0.7 and g['y'] < 60 and h['x'] < g['x'], '⚙️ 在最右上角、❓在它左邊（⚙️ x=%.0f y=%.0f）' % (g['x'], g['y']))
+    R.check(pg.locator('#screen-start .opt').count() == 0 and pg.locator('#startSettings').count() == 0, '開始畫面不再放繁簡／語言按鈕')
+    t, f, l, n, s = box('#startTitle'), box('#flavorText'), box('#fieldLabel'), box('#nameInput'), box('#startBtn')
+    R.check(t['y'] < f['y'] < l['y'] < n['y'] < s['y'], '順序：標題 → 媽媽那段話 → 名字欄 → 開始鈕')
+    R.check(s['h'] < 70, '開始鈕高度變矮：%.0f px' % s['h'])
+    pg.click('#startGear'); pg.wait_for_timeout(150)
+    R.check(pg.is_visible('#setov .ovCard'), '點 ⚙️：跳出設定視窗')
+    R.check(pg.locator('#setov .opt').count() >= 11, '設定裡有繁簡、語言、拼音注音、語速：%d 顆' % pg.locator('#setov .opt').count())
+    pg.click('#setov .opt[data-k="lang"][data-v="en"]'); pg.wait_for_timeout(150)
+    R.check(pg.evaluate("Settings.lang") == 'en' and 'Mom is a bit busy' in pg.inner_text('#screen-start'), '在設定選 English：開始畫面換成英文小字')
+    pg.click('#setDone'); pg.wait_for_timeout(100)
+    R.check(not pg.is_visible('#setov .ovCard'), '按完成：設定視窗關閉')
+    pg.click('#startHelp'); pg.wait_for_timeout(150)
+    R.check(pg.is_visible('#helpov .ovCard') and pg.locator('#helpov li').count() == 4, '點 ❓：跳出遊戲說明（4 點）')
+    R.check('How to play' in pg.inner_text('#helpov'), '遊戲說明跟著語言（English）')
+    pg.click('#helpDone'); pg.wait_for_timeout(100)
+    R.check(not pg.is_visible('#helpov .ovCard'), '按完成：說明視窗關閉')
+    pg.click('#startHelp'); pg.mouse.click(5, 400); pg.wait_for_timeout(100)
+    R.check(not pg.is_visible('#helpov .ovCard'), '點視窗外面：說明視窗關閉')
+    # 遊戲中：⚙️ ❓ 在上方列右邊
+    to_list(pg)
+    R.check(pg.is_visible('#gameGear') and pg.is_visible('#gameHelp') and not pg.is_visible('#startGear'), '遊戲中：上方列有 ⚙️ ❓，開始畫面的右上角那組隱藏')
+    g2, h2 = box('#gameGear'), box('#gameHelp')
+    R.check(g2['x'] > 390 * 0.7 and h2['x'] < g2['x'], '遊戲中 ⚙️ 在最右、❓在它左邊')
+    pg.click('#gameHelp'); pg.wait_for_timeout(150)
+    R.check(pg.is_visible('#helpov .ovCard'), '遊戲中點 ❓：跳出說明')
+    pg.click('#helpDone'); pg.click('#gameGear'); pg.wait_for_timeout(150)
+    R.check(pg.is_visible('#setov .ovCard'), '遊戲中點 ⚙️：跳出設定')
+    R.check(not errs, '設定／說明：沒有網頁錯誤 %s' % errs)
+    b.close()
+    # 簡體＋只有中文時，說明沒有小字翻譯
+    b, pg, errs = page(p, settings=dict(base, lang='zh'))
+    pg.click('#startHelp'); pg.wait_for_timeout(150)
+    R.check(pg.locator('#helpov .tr:visible').count() == 0, '只有中文：說明沒有小字翻譯')
     b.close()
 
     # ───── 6) 重新開始／回首頁 ─────
