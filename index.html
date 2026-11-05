@@ -1321,13 +1321,18 @@ function renderStatic(){
   document.documentElement.dataset.lang = Settings.lang;
   document.title = Z('幫媽媽買東西') + ' · Ir de compras';
   const set = (id, html) => { const el = $(id); if (el) el.innerHTML = html; };
-  set('startTitle', uZh('title'));
+  // 開始畫面（標題、媽媽那句話、名字欄標題、開始鈕）不放讀音，只留字；遊戲裡面才依設定顯示拼音／注音
+  const plain = k => esc(Z(UI[k][0]));
+  set('startTitle', plain('title'));
   set('startSubtitle', esc(X(UI.title[1], UI.title[2])));
   if(!$('helpov').classList.contains('hide')) drawHelp();   // 說明視窗開著時，切換繁簡／語言／拼音也一起更新
-  set('fieldLabel', ONLYZH() ? uZh('nameLabel') : `${uZh('nameLabel')} / ${uTr('nameLabel')}`);
+  set('fieldLabel', ONLYZH() ? plain('nameLabel') : `${plain('nameLabel')} / ${uTr('nameLabel')}`);
   $('nameInput').placeholder = Z('例：María、小明');
-  set('startBtn', bt('start'));
-  set('flavorText', `<span class="zh">${uZh('flavor')}</span><span class="tr">${uTr('flavor')}</span>`);
+  set('startBtn', `${plain('start')}<small class="sub">${uTr('start')}</small>`);
+  // 媽媽那句話在逗號處分成兩行
+  const flParts = UI.flavor[0].split('，');
+  const flZh = flParts.map((s, i) => esc(Z(i < flParts.length - 1 ? s + '，' : s))).join('<br>');
+  set('flavorText', `<span class="zh">${flZh}</span><span class="tr">${uTr('flavor')}</span>`);
   set('confirmBtn', bt('confirm'));
   set('listHeading', bi('listHead'));
   set('stickyTitle', bi('sticky'));

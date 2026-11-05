@@ -344,6 +344,15 @@ with sync_playwright() as p:
     R.check(pg.is_visible('#setov .ovCard'), '遊戲中點 ⚙️：跳出設定')
     R.check(not errs, '設定／說明：沒有網頁錯誤 %s' % errs)
     b.close()
+    # 開始畫面不放讀音（不管設定選哪種），媽媽那句話在逗號分兩行；進遊戲後還是照設定顯示
+    for phon in ('pinyin', 'zhuyin', 'both'):
+        b, pg, errs = page(p, settings=dict(base, phon=phon))
+        R.check(pg.locator('#screen-start ruby, #screen-start rt, #screen-start .zyu').count() == 0, f'開始畫面（{phon}）：沒有任何讀音')
+        R.check(pg.evaluate("document.querySelector('#flavorText .zh').innerHTML.split('<br>').length") == 2, f'開始畫面（{phon}）：媽媽那句話分成兩行')
+        to_list(pg)
+        R.check(pg.locator('#shoppingItemsList ruby').count() > 0, f'進遊戲後（{phon}）：清單還是有讀音')
+        R.check(not errs, f'開始畫面無讀音（{phon}）：沒有網頁錯誤 {errs}')
+        b.close()
     # 簡體＋只有中文時，說明沒有小字翻譯
     b, pg, errs = page(p, settings=dict(base, lang='zh'))
     pg.click('#startHelp'); pg.wait_for_timeout(150)
