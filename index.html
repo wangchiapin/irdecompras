@@ -1459,7 +1459,13 @@ function renderResult(){
   if(!resultInfo) return;
   const r = resultInfo;
   $('starsDisplay').textContent = r.stars;
-  $('resultName').innerHTML = msg(`${esc(playerName)}，${ruby('辛苦了！')}`, X(`¡Buen trabajo, ${playerName}!`, `Well done, ${playerName}!`));
+  // 依成績換句子：一樣都沒買 → 鼓勵再試；只有 1 顆星 → 加油；其餘 → 辛苦了
+  const oneStar = r.stars === '★☆☆';
+  $('resultName').innerHTML = r.doneCount === 0
+    ? msg(`${esc(playerName)}，${ruby('下次再試試看！')}`, X(`¡Inténtalo otra vez, ${playerName}!`, `Try again, ${playerName}!`))
+    : oneStar
+      ? msg(`${esc(playerName)}，${ruby('再加油！')}`, X(`¡Ánimo, ${playerName}!`, `Keep going, ${playerName}!`))
+      : msg(`${esc(playerName)}，${ruby('辛苦了！')}`, X(`¡Buen trabajo, ${playerName}!`, `Well done, ${playerName}!`));
   $('resultScore').innerHTML = `${r.finalScore} ${ruby('分')}`;
   const line = (k, val) => `<div class="result-line"><span><span class="zh">${uZh(k)}</span><span class="tr">${uTr(k)}</span></span><b>${val}</b></div>`;
   $('resultCard').innerHTML =
