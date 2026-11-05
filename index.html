@@ -449,8 +449,6 @@ html{color-scheme:light}
 
   /* ---------- 版面：兩欄（電腦）／底部操作列（手機） ---------- */
   .cols,.colL,.colR,.dock{display:contents;}
-  .more{display:none;}
-  .more-menu{display:contents;}
   .kb-btn{display:none;}
   .item-list li{display:flex;justify-content:space-between;align-items:center;gap:10px;}
   .item-list li .tr{margin:0;text-align:right;flex:0 1 44%;}
@@ -477,12 +475,20 @@ html{color-scheme:light}
     .colR > .mw-box{margin:0 0 18px;}
   }
   @media (max-width:899px){
-    .more{display:flex;}
-    .more-menu{display:none;position:absolute;top:46px;left:12px;z-index:60;flex-direction:column;gap:8px;
-      background:var(--paper2);border:1.5px solid var(--gold);border-radius:12px;padding:10px;box-shadow:var(--shadow);}
-    body.menu-open .more-menu{display:flex;}
-    .more{font-size:18px;line-height:1;padding:6px 14px;}
-    #screen-shopping,#screen-checkout,#screen-list{padding-bottom:150px;}
+    /* 上方列：回首頁、重新開始直接放出來；名字太長就縮成「…」 */
+    .top-bar{flex-wrap:nowrap;gap:6px;padding:8px 10px;}
+    .top-bar .btn-pinyin.restart{padding:6px 9px;flex:none;}
+    .top-bar .chip{flex:0 1 auto;min-width:0;max-width:none;margin-left:auto;padding:5px 9px;}
+    .top-bar .gear{width:38px;height:38px;}
+    #screen-shopping,#screen-checkout{padding-bottom:150px;}
+    /* 清單頁：底部欄縮矮、清單排緊一點，讓「這張清單用到的量詞」按鈕多露出來（被擋住一點沒關係，玩家看得到有地方可以點） */
+    #screen-list{padding-bottom:84px;}
+    .dock .list-actions .btn{padding:6px 14px;line-height:1.25;}
+    #screen-list .list-heading{margin-bottom:12px;}
+    #screen-list .sticky-note{padding:14px 18px 10px;}
+    #screen-list .sticky-title{margin-bottom:4px;padding-bottom:6px;}
+    #screen-list .item-list li{padding:5px 0 4px;}
+    #screen-list .mw-box{margin-top:12px;}
     .dock{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;position:fixed;left:50%;transform:translateX(-50%);bottom:0;
       width:100%;max-width:480px;z-index:40;background:var(--paper2);border-top:2px solid var(--gold-soft);
       padding:10px 14px calc(10px + env(safe-area-inset-bottom));box-shadow:0 -6px 16px rgba(46,36,28,.14);}
@@ -541,11 +547,8 @@ html{color-scheme:light}
 
   <!-- 上方列：回首頁／重新開始／玩家名字／說明／設定（開始畫面不顯示） -->
   <div class="top-bar" id="topBar">
-    <button type="button" class="btn-pinyin more" id="moreBtn" aria-label="menu">⋯</button>
-    <div class="more-menu" id="moreMenu">
-      <button class="btn-pinyin restart" id="btnHome"></button>
-      <button class="btn-pinyin restart" id="btnRestart"></button>
-    </div>
+    <button class="btn-pinyin restart" id="btnHome"></button>
+    <button class="btn-pinyin restart" id="btnRestart"></button>
     <span class="chip" id="playerBadge"></span>
     <button type="button" class="gear" id="gameHelp" aria-label="❓">❓</button>
     <button type="button" class="gear" id="gameGear" aria-label="⚙️">⚙️</button>
@@ -1309,7 +1312,6 @@ function showScreen(id){
   $(id).classList.add('active');
   document.body.classList.toggle('has-bar', id !== 'screen-start');
   document.body.classList.toggle('wide', ['screen-list','screen-shopping','screen-checkout','screen-change'].includes(id));
-  document.body.classList.remove('menu-open');
   $('btnRestart').style.display = (id==='screen-result' || id==='screen-leaderboard') ? 'none' : '';
 }
 
@@ -2413,10 +2415,7 @@ function goHome(){
   renderAll();
 }
 $('btnHome').addEventListener('click', goHome);
-/* 版面：手機的「⋯」選單、打字欄開關、量詞說明在電腦版預設展開 */
-$('moreBtn').addEventListener('click', (e)=>{ e.stopPropagation(); document.body.classList.toggle('menu-open'); });
-$('moreMenu').addEventListener('click', ()=> document.body.classList.remove('menu-open'));
-document.addEventListener('click', ()=> document.body.classList.remove('menu-open'));
+/* 版面：打字欄開關、量詞說明在電腦版預設展開 */
 $('kbBtn').addEventListener('click', ()=>{
   const scr = $('screen-shopping'); scr.classList.toggle('kb-open');
   if(scr.classList.contains('kb-open')) $('textFallback').focus();
