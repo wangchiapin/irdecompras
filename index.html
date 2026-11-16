@@ -423,6 +423,8 @@ html{color-scheme:light}
   .result-line .tr{font-weight:400;}
   .result-line>span{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
   .result-line .tr{font-size:12px;}
+  #shareBtn{background:#fff;}
+  #shareBtn[hidden]{display:none;}
   #resultHomeBtn{display:none;}  /* 上方列已有回首頁，不用再放一顆大的 */
   #screen-result .result-actions .btn{padding:8px 10px;}
   .result-line b{color:var(--brick-dark);}
@@ -707,6 +709,7 @@ html{color-scheme:light}
       <button class="btn btn-outline" id="viewLeaderboardBtn"></button>
       <button class="btn btn-gold" id="playAgainBtn"></button>
     </div>
+    <button class="btn btn-outline home-wide" id="shareBtn" type="button" hidden></button>
     <button class="btn btn-outline home-wide" id="resultHomeBtn"></button>
   </div>
 
@@ -1022,6 +1025,9 @@ const UI = {
   rSpent:     ['總花費', 'Gasto total', 'Total spent'],
   board:      ['排行榜', 'Clasificación', 'Leaderboard'],
   again:      ['再玩一次', 'Jugar otra vez', 'Play again'],
+  share:      ['分享成績', 'Compartir resultado', 'Share result'],
+  shareCopied:['已複製', 'Copiado', 'Copied'],
+  shareFail:  ['複製失敗', 'No se pudo copiar', 'Copy failed'],
   lbTitle:    ['購物達人排行榜', 'Clasificación de compradores', 'Shopping leaderboard'],
   lbSub:      ['前十名', 'Los 10 mejores', 'Top 10'],
   back:       ['返回', 'Volver', 'Back'],
@@ -1415,6 +1421,7 @@ function renderStatic(){
   set('resultTitle', bi('done'));
   set('viewLeaderboardBtn', bt('board'));
   set('playAgainBtn', bt('again'));
+  set('shareBtn', bt('share'));
   set('lbTitle', bi('lbTitle'));
   set('lbSub', bi('lbSub'));
   set('lbBackBtn', bt('back'));
@@ -1509,6 +1516,7 @@ function renderResult(){
       ? msg(`${esc(playerName)}，${ruby('再加油！')}`, X(`¡Ánimo, ${playerName}!`, `Keep going, ${playerName}!`))
       : msg(`${esc(playerName)}，${ruby('辛苦了！')}`, X(`¡Buen trabajo, ${playerName}!`, `Well done, ${playerName}!`));
   $('resultScore').innerHTML = `${r.finalScore} ${ruby('分')}`;
+  $('shareBtn').hidden = !(r.finalScore > 0);   // 0 分不顯示分享
   const line = (k, val) => `<div class="result-line"><span><span class="zh">${uZh(k)}</span><span class="tr">${uTr(k)}</span></span><b>${val}</b></div>`;
   $('resultCard').innerHTML =
       line('rItems', `${r.doneCount} / ${shoppingList.length}`)
@@ -2427,6 +2435,49 @@ function showResult(){
   speak('購物完成，' + playerName + '，你做得很好！');
   if(finalScore>0) submitScoreToLeaderboard(playerName, finalScore);
 }
+/* SHARE-BEGIN（來自 game-kit/parts/share.js） */
+const HGShare = (() => {
+  async function copyText(s) {
+    try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(s); return true; } } catch (e) {}
+    try {
+      const ta = document.createElement('textarea'); ta.value = s; ta.setAttribute('readonly', '');
+      ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+      document.body.appendChild(ta); ta.select();
+      const r = document.execCommand('copy'); ta.remove(); return !!r;
+    } catch (e) { return false; }
+  }
+  async function send({ title, text, url }) {
+    if (navigator.share) {
+      try { await navigator.share({ title, text, url }); return 'shared'; }
+      catch (e) { if (e && e.name === 'AbortError') return 'aborted'; }   // 其他錯誤改走複製
+    }
+    return (await copyText(text + '\n' + url)) ? 'copied' : 'failed';
+  }
+  return { copyText, send };
+})();
+/* SHARE-END */
+const SHARE_URL = 'https://wangchiapin.github.io/irdecompras/?ref=share';   // 公開頁＋分享記號
+const SHARE_MSG = {
+  zh: n => '我在「幫媽媽買東西」得了 ' + n + ' 分！你也來試試',
+  es: n => '¡Saqué ' + n + ' puntos en «Ir de compras» (ayuda a mamá a comprar)! Inténtalo tú también',
+  en: n => 'I scored ' + n + ' points in "Ir de compras" (shopping for mom)! Try it too'
+};
+let shareBusy = false, shareTimer = 0;
+$('shareBtn').addEventListener('click', async ()=>{
+  if(shareBusy || !resultInfo || resultInfo.finalScore <= 0) return;
+  shareBusy = true;
+  try{
+    const m = (SHARE_MSG[Settings.lang] || SHARE_MSG.zh)(resultInfo.finalScore);
+    const r = await HGShare.send({ title: Z('幫媽媽買東西') + ' · Ir de compras', text: Settings.lang === 'zh' ? Z(m) : m, url: SHARE_URL });
+    if(r === 'copied' || r === 'failed'){
+      const b = $('shareBtn');
+      b.innerHTML = bt(r === 'copied' ? 'shareCopied' : 'shareFail');
+      clearTimeout(shareTimer);
+      shareTimer = setTimeout(()=>{ shareTimer = 0; b.innerHTML = bt('share'); }, 2200);
+    }
+  } finally { shareBusy = false; }
+});
+
 function playAgain(){
   score = 0;
   buildShoppingList();
@@ -2538,6 +2589,19 @@ if(SIMP() && !_t2s) loadT2S().then(renderAll);   // 上次選了簡體：開始�
   }
   var TZ = tzName();
 
+  /* ref：這個訪客是從哪裡進來的記號（例如 ?ref=share＝朋友分享的連結）。
+     只收英數字、底線、連字號，最長 16 字，統一小寫；其他一律忽略（規則也限制 1～16 字串）。
+     網址有 ?ref= 就記下並暫存在這個分頁（sessionStorage，同分頁的 iframe 讀得到、分頁關掉就消失）；
+     沒有就讀暫存。所以「首頁收到記號、遊戲頁（iframe）才寫紀錄」也記得到。 */
+  function cleanRef(x) { x = String(x == null ? '' : x).trim().toLowerCase(); return /^[a-z0-9_-]{1,16}$/.test(x) ? x : ''; }
+  function refName() {
+    var r = '';
+    try { r = cleanRef(new URLSearchParams(location.search).get('ref')); } catch (e) {}
+    try { if (r) sessionStorage.setItem('hg.ref', r); else r = cleanRef(sessionStorage.getItem('hg.ref')); } catch (e) {}
+    return r;
+  }
+  var REF = refName();
+
   function gid() { try { return (HG.gameFn ? HG.gameFn() : GAME) || GAME; } catch (e) { return GAME; } } // taiwan-life 這類共用引擎的遊戲可改寫 HGPlays.gameFn
   function day() { // 以台灣時間（UTC+8）算「哪一天」，方便老師對帳
     var d = new Date(Date.now() + 8 * 3600e3);
@@ -2578,6 +2642,7 @@ if(SIMP() && !_t2s) loadT2S().then(renderAll);   // 上次選了簡體：開始�
         var id = d + '_' + g + '_' + L.uid;
         var v = { game: g, day: d, uid: L.uid, at: L.F.serverTimestamp() };
         if (TZ) v.tz = TZ;
+        if (REF) v.ref = REF;
         return L.F.setDoc(L.F.doc(L.db, 'visits', id), v)
           .then(function () { ls(key, d); });
       }).catch(function () {});
@@ -2590,6 +2655,7 @@ if(SIMP() && !_t2s) loadT2S().then(renderAll);   // 上次選了簡體：開始�
         var data = { game: gid(), level: mine.level, uid: L.uid, name: getName(name), day: day(),
                      startedAt: L.F.serverTimestamp(), done: false };
         if (TZ) data.tz = TZ;
+        if (REF) data.ref = REF;
         return L.F.addDoc(L.F.collection(L.db, 'plays'), data).then(function (ref) {
           mine.id = ref.id; if (mine.pendingEnd) HG._finish(mine, mine.pendingEnd);
         });
